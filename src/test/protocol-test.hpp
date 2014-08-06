@@ -24,7 +24,7 @@ struct common
    }
 };
 
-BOOST_FIXTURE_TEST_SUITE( test, common )
+BOOST_FIXTURE_TEST_SUITE( test_commands, common )
 
 BOOST_AUTO_TEST_CASE( set_address )
 {
