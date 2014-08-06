@@ -525,3 +525,24 @@ namespace rdm
       } // namespace repy
    } // mamespace message
 } // namespace RDM
+
+std::ostream & operator<<(std::ostream & os, const rdm::message::data_type & rhs)
+{
+//   for (const auto & value : rhs)
+//   {
+//      os << value;
+//   }
+   std::copy(rhs.begin(), rhs.end(), std::ostream_iterator<rdm::message::data_type::value_type>(os));
+   return os;
+}
+
+std::istream & operator>>(std::istream & os, rdm::message::data_type & rhs)
+{
+   rdm::message::data_type::value_type item;
+   while(os >> item)
+   {
+      rhs.push_back(item);
+   }
+
+   return os;
+}

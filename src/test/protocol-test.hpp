@@ -4,6 +4,25 @@
 
 #include "protocol.hpp"
 
+BOOST_AUTO_TEST_CASE( stream_test )
+{
+   rdm::message::data_type in =
+         { 1, 2, 3, 4 };
+   rdm::message::data_type out;
+
+   std::stringstream ss;
+   ss << in;
+   ss >> out;
+   std::cout << in.size() << std::endl << out.size() <<std::endl;
+
+   //std::copy(rhs.begin(), rhs.end(), std::ostream_iterator<rdm::message::data_type::value_type>(os));
+
+   std::cout << std::hex << ss << std::endl;
+//   std::cout << std::hex <<  out << std::endl;
+
+   BOOST_CHECK_EQUAL_COLLECTIONS(in.begin(), in.end(), out.begin(), out.end());
+}
+
 struct common
 {
    const rdm::message::data_type::value_type stx = rdm::message::framing::value::STX;
@@ -15,7 +34,7 @@ struct common
 
    template<typename reply_type>
    void decode_and_check(reply_type & reply_decoded, const rdm::message::data_type & reply_expected) const
-   {
+         {
       rdm::message::reply::type & generic_reply = dynamic_cast<rdm::message::reply::type &>(reply_decoded);
       rdm::message::reply::decode(reply_expected, generic_reply);
 
@@ -26,57 +45,57 @@ struct common
 
 BOOST_FIXTURE_TEST_SUITE( test_commands, common )
 
-BOOST_AUTO_TEST_CASE( set_address )
-{
-   // setup
-   const rdm::message::data_type::value_type cmd = to_integral(rdm::message::command::id::SetAddress);
-   const rdm::message::data_type::value_type new_device_addr = 0x02;
+   BOOST_AUTO_TEST_CASE( set_address )
+   {
+      // setup
+      const rdm::message::data_type::value_type cmd = to_integral(rdm::message::command::id::SetAddress);
+      const rdm::message::data_type::value_type new_device_addr = 0x02;
 
-   const rdm::message::data_type cmd_expected =
-         { stx, device_addr, 0x02, cmd, new_device_addr, 0x80, etx };
+      const rdm::message::data_type cmd_expected =
+            { stx, device_addr, 0x02, cmd, new_device_addr, 0x80, etx };
 
-   const rdm::message::data_type reply_expected =
-         { stx, device_addr, 0x02, reply_status, new_device_addr, 0x00, etx };
+      const rdm::message::data_type reply_expected =
+            { stx, device_addr, 0x02, reply_status, new_device_addr, 0x00, etx };
 
-   // command
-   rdm::message::data_type cmd_encoded;
-   rdm::message::command::set_address(cmd_encoded, device_addr, new_device_addr);
+      // command
+      rdm::message::data_type cmd_encoded;
+      rdm::message::command::set_address(cmd_encoded, device_addr, new_device_addr);
 
-   BOOST_CHECK_EQUAL_COLLECTIONS(cmd_encoded.begin(), cmd_encoded.end(),
-         cmd_expected.begin(), cmd_expected.end());
+      BOOST_CHECK_EQUAL_COLLECTIONS(cmd_encoded.begin(), cmd_encoded.end(),
+            cmd_expected.begin(), cmd_expected.end());
 
-   // reply
-   rdm::message::reply::set_address reply_decoded;
-   decode_and_check(reply_decoded, reply_expected);
+      // reply
+      rdm::message::reply::set_address reply_decoded;
+      decode_and_check(reply_decoded, reply_expected);
 
-   BOOST_CHECK_EQUAL(reply_decoded.new_device_addr(), new_device_addr);
-}
+      BOOST_CHECK_EQUAL(reply_decoded.new_device_addr(), new_device_addr);
+   }
 
-BOOST_AUTO_TEST_CASE( control_buzzer )
-{
-   // setup
-   const rdm::message::data_type::value_type cmd = to_integral(rdm::message::command::id::Control_Buzzer);
-   const rdm::message::data_type::value_type buzz_duration = 0x18;
-   const rdm::message::data_type::value_type buzz_count = 0x0a;
+   BOOST_AUTO_TEST_CASE( control_buzzer )
+   {
+      // setup
+      const rdm::message::data_type::value_type cmd = to_integral(rdm::message::command::id::Control_Buzzer);
+      const rdm::message::data_type::value_type buzz_duration = 0x18;
+      const rdm::message::data_type::value_type buzz_count = 0x0a;
 
-   const rdm::message::data_type cmd_expected =
-         { stx, device_addr, 0x03, cmd, buzz_duration, buzz_count, 0x98, etx };
+      const rdm::message::data_type cmd_expected =
+            { stx, device_addr, 0x03, cmd, buzz_duration, buzz_count, 0x98, etx };
 
-   const rdm::message::data_type reply_expected =
-         { stx, device_addr, 0x02, reply_status, reply_result, 0x82, etx };
+      const rdm::message::data_type reply_expected =
+            { stx, device_addr, 0x02, reply_status, reply_result, 0x82, etx };
 
-   // command
-   rdm::message::data_type cmd_encoded;
-   rdm::message::command::control_buzzer(cmd_encoded, device_addr, buzz_duration, buzz_count);
+      // command
+      rdm::message::data_type cmd_encoded;
+      rdm::message::command::control_buzzer(cmd_encoded, device_addr, buzz_duration, buzz_count);
 
-   BOOST_CHECK_EQUAL_COLLECTIONS(cmd_encoded.begin(), cmd_encoded.end(),
-         cmd_expected.begin(), cmd_expected.end());
+      BOOST_CHECK_EQUAL_COLLECTIONS(cmd_encoded.begin(), cmd_encoded.end(),
+            cmd_expected.begin(), cmd_expected.end());
 
-   // reply
-   rdm::message::reply::control_buzzer reply_decoded;
-   decode_and_check(reply_decoded, reply_expected);
+      // reply
+      rdm::message::reply::control_buzzer reply_decoded;
+      decode_and_check(reply_decoded, reply_expected);
 
-   BOOST_CHECK_EQUAL(reply_decoded.result(), reply_result);
-}
+      BOOST_CHECK_EQUAL(reply_decoded.result(), reply_result);
+   }
 
-BOOST_AUTO_TEST_SUITE_END()
+   BOOST_AUTO_TEST_SUITE_END()

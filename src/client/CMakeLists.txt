@@ -6,13 +6,11 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/lib
     ${Boost_INCLUDES}
 )
-
-set(LIB_SOURCES
-    protocol.cpp
-)
     
 add_executable(${PROJECT_NAME}
     client.cpp
+    serialstream.cpp
+    TimeoutSerial.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
