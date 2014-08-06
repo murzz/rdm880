@@ -34,6 +34,7 @@ namespace rdm
             static const data_type::size_type reply_baudrate = 0;
             static const data_type::size_type reply_device_addr = 0;
             static const data_type::size_type reply_sernum = 1;
+            static const data_type::size_type reply_control_buzzer = 0;
          }
 
          namespace size
@@ -341,9 +342,17 @@ namespace rdm
             }
          };
 
+         struct with_result : public reply::type
+         {
+            data_type::value_type result()
+            {
+               return data_.at(framing::offset::reply_control_buzzer);
+            }
+         };
+
          struct set_address: public reply::type
          {
-            data_type::value_type device_addr()
+            data_type::value_type new_device_addr()
             {
                return data_.at(framing::offset::reply_device_addr);
             }
@@ -375,6 +384,10 @@ namespace rdm
             {
                return mid(data_, framing::offset::reply_sernum);
             }
+         };
+
+         struct control_buzzer: public reply::with_result
+         {
          };
       } // namespace reply
 
@@ -467,7 +480,7 @@ namespace rdm
             return message::encode(packet, command);
          }
 
-         bool blink_led1(data_type & packet, const data_type::value_type & device_addr,
+         bool control_led1(data_type & packet, const data_type::value_type & device_addr,
                data_type::value_type blink_duration,
                data_type::value_type blink_count)
          {
@@ -479,7 +492,7 @@ namespace rdm
             return message::encode(packet, command);
          }
 
-         bool blink_led2(data_type & packet, const data_type::value_type & device_addr,
+         bool control_led2(data_type & packet, const data_type::value_type & device_addr,
                data_type::value_type blink_duration,
                data_type::value_type blink_count)
          {
@@ -491,11 +504,11 @@ namespace rdm
             return message::encode(packet, command);
          }
 
-         bool buzz(data_type & packet, const data_type::value_type & device_addr, data_type::value_type buzz_duration,
+         bool control_buzzer(data_type & packet, const data_type::value_type & device_addr, data_type::value_type buzz_duration,
                data_type::value_type buzz_count)
          {
             command::type command(device_addr);
-            command.id_ = command::id::Control_Led2;
+            command.id_ = command::id::Control_Buzzer;
             command.data_.push_back(buzz_duration);
             command.data_.push_back(buzz_count);
 
