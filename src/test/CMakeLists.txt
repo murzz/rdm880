@@ -22,5 +22,5 @@ enable_testing()
 add_test( unit-tests ${PROJECT_NAME})
 
 # work around cmake bug(?): http://stackoverflow.com/questions/733475/cmake-ctest-make-test-doesnt-build-tests
-#add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}
-#                  DEPENDS ${PROJECT_NAME})
+add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}
+                  DEPENDS ${PROJECT_NAME})
