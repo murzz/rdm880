@@ -1,96 +1,222 @@
 #include <cstdlib>
 #include <iostream>
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
 
 #include "serialstream.h"
 #include "TimeoutSerial.h"
 #include "protocol.hpp"
 
-bool cmd_get_version_num(SerialStream & serial)
-//bool cmd_get_version_num(TimeoutSerial & serial )
+//bool cmd_get_version_num(SerialStream & serial)
+bool cmd_get_version_num(TimeoutSerial & serial)
 {
-   rdm::message::data_type::value_type device_addr = rdm::message::default_device_addr;
+   rdm::message::data_type::value_type device_addr =
+         rdm::message::default_device_addr;
    rdm::message::data_type packet;
-   rdm::message::data_type packet_reply;
 
    if (!rdm::message::command::get_version_num(packet, device_addr))
    {
       return false;
    }
 
-   serial << packet;
+   std::vector<char> data_to_write;
+   std::copy(packet.begin(), packet.end(), std::back_inserter(data_to_write));
+   serial.write(data_to_write);
+
+   rdm::message::data_type packet_reply;
+   read_more:
+   {
+      std::vector<char> data_read;
+      data_read = serial.read(1);
+
+      std::copy(data_read.begin(), data_read.end(),
+            std::back_inserter(packet_reply));
+
+      // dbg
+//      std::cout << "data size: " << std::dec << data_read.size() << std::endl;
+//      for (const auto & item : data_read)
+//      {
+//         std::cout << std::hex;
+//
+//         std::cout << (int) item;
+//         std::cout << std::endl;
+//      }
+//
+//      std::cout << "packet size: " << std::dec << data_read.size() << std::endl;
+//      for (const auto & item : packet_reply)
+//      {
+//         std::cout << std::hex;
+//
+//         std::cout << (int) item;
+//         std::cout << std::endl;
+//      }
+
+//      std::copy(packet_reply.begin(), packet_reply.end(),
+//            std::ostream_iterator<rdm::message::data_type::value_type>(
+//                  std::cout, " "));
+
+//std::cout << std::endl;
+
+      rdm::message::reply::get_version_num version_num;
+      if (!rdm::message::reply::decode(packet_reply, version_num))
+      {
+         BOOST_LOG_TRIVIAL(debug)<< "reading more...";
+         goto read_more;
+      }
+
+//      std::stringstream ss;
+//      std::copy(version_num.version().begin(), version_num.version().end(),
+//            std::ostream_iterator<char>(ss));
+
+      std::string version;
+      // get rid of 0 or non print characters
+      for (const auto & item : version_num.version())
+      {
+         if ('\0' != item)
+         {
+            version += std::iswprint(item) ? item : '.';
+         }
+      }
+      BOOST_LOG_TRIVIAL(info)<< "version: '" << version << "'";
+   }
+   // serial << packet;
 ////   sleep(1);
 //   std::string s;
 //
 //   serial >> s;
 //   std::cout << s << std::endl;
 
-   read_again:
-   try
+//   read_again:
+//   try
+//   {
+   //serial >> packet_reply;
+//   }
+//   catch (TimeoutException &)
+//   {
+//      std::cout << "size " << packet_reply.size() << std::endl;
+//      if (0 == packet_reply.size())
+//      {
+//         goto read_again;
+//      }
+//   rdm::message::reply::get_version_num version_num;
+//   if (!rdm::message::reply::decode(packet_reply, version_num))
+//   {
+////         throw;
+//      return false;
+//   }
+//   std::cout << "version: '" << version_num.version() << "'" << std::endl;
+////   }
+
+   return true;
+}
+
+bool cmd_get_ser_num(TimeoutSerial & serial)
+{
+   rdm::message::data_type::value_type device_addr =
+         rdm::message::default_device_addr;
+   rdm::message::data_type packet;
+
+   if (!rdm::message::command::get_ser_num(packet, device_addr))
    {
-      serial >> packet_reply;
+      return false;
    }
-   catch (TimeoutException &)
+
+   std::vector<char> data_to_write;
+   std::copy(packet.begin(), packet.end(), std::back_inserter(data_to_write));
+   serial.write(data_to_write);
+
+   rdm::message::data_type packet_reply;
+   read_more:
    {
-      std::cout << "size " << packet_reply.size() << std::endl;
-      if (0 == packet_reply.size())
+      std::vector<char> data_read;
+      data_read = serial.read(1);
+
+      std::copy(data_read.begin(), data_read.end(),
+            std::back_inserter(packet_reply));
+
+      rdm::message::reply::get_ser_num reply;
+      if (!rdm::message::reply::decode(packet_reply, reply))
       {
-         goto read_again;
+         BOOST_LOG_TRIVIAL(debug)<< "reading more...";
+         goto read_more;
       }
-      rdm::message::reply::get_version_num version_num;
-      if (!rdm::message::reply::decode(packet_reply, version_num))
+
+      std::string sernum;
+      // get rid of 0 or non print characters
+      for (const auto & item : reply.sernum())
       {
-         throw;
-         //return false;
+         if ('\0' != item)
+         {
+            sernum += std::iswprint(item) ? item : '.';
+         }
       }
-      std::cout << "version: '" << version_num.version() << "'" << std::endl;
+      BOOST_LOG_TRIVIAL(info)<< "sernum: '" << sernum << "'";
    }
 
    return true;
 }
 
-int main(int argc, char **argv)
+template<typename command>
+void send_command(command cmd)
 {
-   SerialOptions options;
-
-   if (argc > 1)
-   {
-      options.setDevice(argv[1]);
-   }
-   else
-   {
-      options.setDevice("/dev/ttyUSB0");
-   }
-   options.setBaudrate(115200);
-   options.setTimeout(boost::posix_time::seconds(1));
-
-   SerialStream serial(options);
-   serial.exceptions(std::ios::badbit | std::ios::failbit); //Important!
-
-   //TimeoutSerial serial("/dev/ttyUSB0",115200);
-   //serial.setTimeout(boost::posix_time::seconds(5));
-
-   for (size_t retry = 3; retry; --retry)
+   for (size_t retry = 1; retry; --retry)
    {
       try
       {
-         if (cmd_get_version_num(serial))
+         if (cmd())
          {
             // stop retrying on success
             break;
          }
-      }
-      catch (TimeoutException &)
+      } catch (TimeoutException &)
       {
-         //serial.clear(); //Don't forget to clear error flags after a timeout
-         std::cerr << "Timeout occurred, retrying..." << std::endl;
+         //   serial.clear(); //Don't forget to clear error flags after a timeout
+         BOOST_LOG_TRIVIAL(warning)<< "Timeout occurred, retrying...";
+      }
+      catch (timeout_exception & e)
+      {
+         BOOST_LOG_TRIVIAL(warning)<< "Timeout occurred, retrying...";
+      }
+      catch ( std::ios_base::failure & e)
+      {
+         //   serial.clear(); //Don't forget to clear error flags after a timeout
+         BOOST_LOG_TRIVIAL(warning) << "std::ios_base::failure::" << e.what() << ", retrying...";
       }
       catch (...)
       {
-         //serial.clear(); //Don't forget to clear error flags after a timeout
-         std::cerr << "Unexpected exception, retrying..." << std::endl;
+         //  serial.clear(); //Don't forget to clear error flags after a timeout
+         BOOST_LOG_TRIVIAL(warning) << "Unexpected exception, retrying...";
       }
-
    }
+}
+
+int main(int argc, char **argv)
+{
+   std::string device = "/dev/ttyUSB0";
+   if (argc > 1)
+   {
+      device = argv[1];
+   }
+
+//   SerialOptions options;
+//   options.setDevice(device);
+//   options.setBaudrate(115200);
+//   options.setTimeout(boost::posix_time::seconds(3));
+//
+//   SerialStream serial(options);
+//   serial.exceptions(std::ios::badbit | std::ios::failbit); //Important!
+
+   TimeoutSerial serial(device, 115200);
+   serial.setTimeout(boost::posix_time::seconds(3));
+
+   boost::function<bool()> get_version;
+   get_version = boost::bind(cmd_get_version_num, boost::ref(serial));
+
+   boost::function<bool()> get_sernum;
+   get_sernum = boost::bind(cmd_get_ser_num, boost::ref(serial));
+
+   send_command(get_version);
+   send_command(get_sernum);
 
    return EXIT_SUCCESS;
 }
