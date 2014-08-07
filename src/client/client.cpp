@@ -14,7 +14,7 @@ bool cmd_get_version_num(TimeoutSerial & serial)
          rdm::message::default_device_addr;
    rdm::message::data_type packet;
 
-   if (!rdm::message::command::get_version_num(packet, device_addr))
+   if (!rdm::message::command::system::get_version_num(packet, device_addr))
    {
       return false;
    }
@@ -57,7 +57,7 @@ bool cmd_get_version_num(TimeoutSerial & serial)
 
 //std::cout << std::endl;
 
-      rdm::message::reply::get_version_num version_num;
+      rdm::message::reply::system::get_version_num version_num;
       if (!rdm::message::reply::decode(packet_reply, version_num))
       {
          BOOST_LOG_TRIVIAL(debug)<< "reading more...";
@@ -116,7 +116,7 @@ bool cmd_get_ser_num(TimeoutSerial & serial)
          rdm::message::default_device_addr;
    rdm::message::data_type packet;
 
-   if (!rdm::message::command::get_ser_num(packet, device_addr))
+   if (!rdm::message::command::system::get_ser_num(packet, device_addr))
    {
       return false;
    }
@@ -134,7 +134,7 @@ bool cmd_get_ser_num(TimeoutSerial & serial)
       std::copy(data_read.begin(), data_read.end(),
             std::back_inserter(packet_reply));
 
-      rdm::message::reply::get_ser_num reply;
+      rdm::message::reply::system::get_ser_num reply;
       if (!rdm::message::reply::decode(packet_reply, reply))
       {
          BOOST_LOG_TRIVIAL(debug)<< "reading more...";
@@ -151,6 +151,65 @@ bool cmd_get_ser_num(TimeoutSerial & serial)
          }
       }
       BOOST_LOG_TRIVIAL(info)<< "sernum: '" << sernum << "'";
+   }
+
+   return true;
+}
+
+bool mifare_get_ser_num(TimeoutSerial & serial)
+{
+   rdm::message::data_type::value_type device_addr =
+         rdm::message::default_device_addr;
+   rdm::message::data_type packet;
+
+   if (!rdm::message::command::mifare::get_ser_num(packet, device_addr))
+   {
+      return false;
+   }
+
+   std::vector<char> data_to_write;
+   std::copy(packet.begin(), packet.end(), std::back_inserter(data_to_write));
+   serial.write(data_to_write);
+
+   rdm::message::data_type packet_reply;
+   read_more:
+   {
+      std::vector<char> data_read;
+      data_read = serial.read(1);
+
+      std::copy(data_read.begin(), data_read.end(),
+            std::back_inserter(packet_reply));
+
+      rdm::message::reply::mifare::get_ser_num reply;
+      if (!rdm::message::reply::decode(packet_reply, reply))
+      {
+         BOOST_LOG_TRIVIAL(debug)<< "reading more...";
+         goto read_more;
+      }
+
+      if (rdm::message::reply::status::command_ok != reply.status())
+      {
+         BOOST_LOG_TRIVIAL(warning)<< "reply status is not ok: " << to_integral(reply.status());
+         BOOST_LOG_TRIVIAL(warning)<< "reply status code: " << to_integral(reply.status_code());
+         proverj status kod 0
+         return false;
+      }
+
+      std::uint32_t sernum;
+      if (reply.sernum().size() == sizeof(sernum))
+      {
+         std::uint32_t * psernum = &sernum;
+         for (size_t idx = 0; idx < sizeof(sernum); ++idx)
+         {
+            psernum[idx] = reply.sernum()[idx];
+         }
+         //std::memcpy(&sernum, reply.sernum().b);
+         BOOST_LOG_TRIVIAL(info)<< "card sernum: '" << sernum << "'";
+      }
+      else
+      {
+         BOOST_LOG_TRIVIAL(warning)<< "card sernum unexpected size";
+      }
    }
 
    return true;
@@ -215,8 +274,13 @@ int main(int argc, char **argv)
    boost::function<bool()> get_sernum;
    get_sernum = boost::bind(cmd_get_ser_num, boost::ref(serial));
 
-   send_command(get_version);
-   send_command(get_sernum);
+   boost::function<bool()> cmd_mifare_get_ser_num;
+   cmd_mifare_get_ser_num = boost::bind(mifare_get_ser_num, boost::ref(serial));
+
+//   send_command(get_version);
+//   send_command(get_sernum);
+
+   send_command(cmd_mifare_get_ser_num);
 
    return EXIT_SUCCESS;
 }

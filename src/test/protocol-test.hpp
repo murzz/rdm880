@@ -59,13 +59,13 @@ BOOST_FIXTURE_TEST_SUITE( test_commands, common )
 
       // command
       rdm::message::data_type cmd_encoded;
-      rdm::message::command::set_address(cmd_encoded, device_addr, new_device_addr);
+      rdm::message::command::system::set_address(cmd_encoded, device_addr, new_device_addr);
 
       BOOST_CHECK_EQUAL_COLLECTIONS(cmd_encoded.begin(), cmd_encoded.end(),
             cmd_expected.begin(), cmd_expected.end());
 
       // reply
-      rdm::message::reply::set_address reply_decoded;
+      rdm::message::reply::system::set_address reply_decoded;
       decode_and_check(reply_decoded, reply_expected);
 
       BOOST_CHECK_EQUAL(reply_decoded.new_device_addr(), new_device_addr);
@@ -86,13 +86,13 @@ BOOST_FIXTURE_TEST_SUITE( test_commands, common )
 
       // command
       rdm::message::data_type cmd_encoded;
-      rdm::message::command::control_buzzer(cmd_encoded, device_addr, buzz_duration, buzz_count);
+      rdm::message::command::system::control_buzzer(cmd_encoded, device_addr, buzz_duration, buzz_count);
 
       BOOST_CHECK_EQUAL_COLLECTIONS(cmd_encoded.begin(), cmd_encoded.end(),
             cmd_expected.begin(), cmd_expected.end());
 
       // reply
-      rdm::message::reply::control_buzzer reply_decoded;
+      rdm::message::reply::system::control_buzzer reply_decoded;
       decode_and_check(reply_decoded, reply_expected);
 
       BOOST_CHECK_EQUAL(reply_decoded.result(), reply_result);

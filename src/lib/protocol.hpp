@@ -32,10 +32,15 @@ static const data_type::size_type data = 4; // if any
 static const data_type::size_type etx_reverse = 0;
 static const data_type::size_type bcc_reverse = 1;
 
+static const data_type::size_type status_code = 0;
+
 static const data_type::size_type reply_baudrate = 0;
 static const data_type::size_type reply_device_addr = 0;
 static const data_type::size_type reply_sernum = 1;
 static const data_type::size_type reply_control_buzzer = 0;
+
+static const data_type::size_type reply_mifare_sernum_flag = 0;
+static const data_type::size_type reply_mifare_sernum = 1;
 }
 
 namespace size
@@ -55,6 +60,8 @@ static const data_type::size_type frame_min = stx + device_addr + data_len + cmd
 /// the reader won’t response and treats this command as an error and wait
 /// for another command.
 static const data_type::size_type data_field_max = 80;
+
+static const data_type::size_type status_code = 1;
 
 static const data_type::size_type sernum = 8;
 static const data_type::size_type version_min = 6;
@@ -206,6 +213,18 @@ static const data_type::value_type default_device_addr = 0x00;
 /// if command failed it will be retried up to max retry count
 static const std::size_t max_retry_count = 3;
 
+/// Mifare get serial number command request mode: request idle
+static const data_type::value_type mifare_request_idle = 0x26;
+
+/// Mifare get serial number command request mode: request all
+static const data_type::value_type mifare_request_all = 0x52;
+
+/// Mifare get serial number command request mode: do not need to execute the halt command
+static const data_type::value_type mifare_no_halt = 0x00;
+
+/// Mifare get serial number command request mode: need to execute the halt command
+static const data_type::value_type mifare_do_halt = 0x01;
+
 enum class baudrate
 {
    baud_9600 = 0x00, baud_19200 = 0x01, baud_38400 = 0x02, baud_57600 = 0x03, baud_115200 = 0x04,
@@ -213,10 +232,44 @@ enum class baudrate
 
 namespace command
 {
+
 enum class id
 {
    /// not part of protocol, should mark empty command
    Empty = 0x00,
+
+   /// Mifare Application Commands (0x20~0x2F)
+
+   /// The Read command integrates the low level commands (request, anti-collision, select,
+   /// authentication, read) to achieve the reading operation with a one-step single command.
+   MF_Read = 0x20,
+
+   /// The Write command integrates the low level commands (request, anti-collision, select,
+   /// authentication, write) to achieve the writing operation with a one-step single command.
+   MF_Write = 0x21,
+
+   /// The Initialization command integrates the low level commands (request, anti-collision,
+   /// select, authentication) to achieve the value block initialization with a one-step single command.
+   MF_InitVal = 0x22,
+
+   /// The Decrement command integrates the low level commands (request, anti-collision, select,
+   /// authentication) to achieve the Decrement with a one-step single command.
+   MF_Decrement = 0x23,
+
+   /// The Increment command integrates the low level commands (request, anti-collision, select,
+   /// authentication) to achieve the Increment with a one-step single command.
+   MF_Increment = 0x24,
+
+   /// The GetSnr command integrates the low level commands (request,anticoll,select) to achieve the
+   /// select card with a one-step single command, and output the card’s Snr
+   MF_GET_SNR = 0x25,
+
+   /// Using this command you may transparent any command to The Card which these commands meet
+   /// the ISO14443-TypeA protocol
+   MF_ISO14443_TypeA_Transfer_Command = 0x28,
+
+   /// System commands (0x80~0x8F)
+
    /// Program the Device Address to the reader (The  range of address is 0~255)
    SetAddress = 0x80,
    /// Set the reader’s communication baud rate(9600~115200)
@@ -259,50 +312,50 @@ namespace reply
 {
 enum class status
 {
-   //System Error/Status Codes (0x00-0x0F)
-   ///  Command OK.
+//System Error/Status Codes (0x00-0x0F)
+///  Command OK.
    command_ok = 0x00,
-   /// Command FAILURE
+/// Command FAILURE
    command_failure = 0x01,
-   /// SET OK.
+/// SET OK.
    set_ok = 0x80,
-   /// SET FAILURE
+/// SET FAILURE
    set_failure = 0x81,
-   /// Reader reply time out error
+/// Reader reply time out error
    reader_reply_timeout = 0x82,
-   /// The card do not exist
+/// The card do not exist
    card_not_exists = 0x83,
-   /// The data response from the card is error
+/// The data response from the card is error
    card_response_error = 0x84,
-   /// The parameter of the command or the Format of the command Error
+/// The parameter of the command or the Format of the command Error
    unknown_parameter = 0x85,
-   /// Unknown Internal Error
+/// Unknown Internal Error
    internal_error = 0x87,
-   ///Reader received unknown command
+///Reader received unknown command
    unknown_command = 0x8f,
 
-   //ISO14443 Error Codes：
-   /// Some Error appear in the card InitVal process
+//ISO14443 Error Codes：
+/// Some Error appear in the card InitVal process
    iso14443_init_val_error = 0x8A,
-   ///Get The Wrong Snr during anticollison loop
+///Get The Wrong Snr during anticollison loop
    iso14443_anticollision_error = 0x8B,
-   /// The authentication failure
+/// The authentication failure
    iso14443_auth_failure = 0x8C,
 
-   //ISO15693  Error Codes：
-   ///The Card do not support this command
+//ISO15693  Error Codes：
+///The Card do not support this command
    iso15693_unsupported_command = 0x90,
-   /// The Foarmat Of  The Command Erro
+/// The Foarmat Of  The Command Erro
    iso15693_format_error = 0x91,
-   ///Do not support Option mode
+///Do not support Option mode
    iso15693_unsupported_option = 0x92,
-   ///The Block Do Not Exist
+///The Block Do Not Exist
    iso15693_block_not_exists = 0x93,
-   ///The Object have been locked
+///The Object have been locked
    iso15693_object_locked = 0x94,
-   ///The lock Operation Do Not Success
+///The lock Operation Do Not Success
    iso15693_lock_failed = 0x95,
-   ///The Operation Do Not Success
+///The Operation Do Not Success
    iso15693_failed = 0x96,
 };
 
@@ -330,6 +383,26 @@ struct type
       return status_;
    }
 
+   /// If status is no OK then there might be status code with error description
+   const reply::status status_code() const
+   {
+      if (reply::status::command_ok == status_)
+      {
+         return reply::status::command_ok;
+      }
+
+      reply::status status_code = reply::status::command_ok;
+
+      const auto dist_signed = std::distance(data_.begin(), data_.end());
+      data_type::size_type dist_unsigned = dist_signed < 0 ? 0 : dist_signed;
+      if (dist_unsigned > framing::offset::status_code + framing::size::status_code)
+      {
+         status_code = static_cast<message::reply::status>(data_.at(framing::offset::status_code));
+      }
+
+      return status_code;
+   }
+
    const data_type & data() const
    {
       return data_;
@@ -344,6 +417,8 @@ struct with_result: public reply::type
    }
 };
 
+namespace system
+{
 struct set_address: public reply::type
 {
    data_type::value_type new_device_addr()
@@ -370,7 +445,7 @@ struct get_version_num: public reply::type
 
 struct get_ser_num: public reply::type
 {
-   data_type::value_type reported_device_addr()
+   data_type::value_type & reported_device_addr()
    {
       return data_.at(framing::offset::reply_device_addr);
    }
@@ -383,12 +458,29 @@ struct get_ser_num: public reply::type
 struct control_buzzer: public reply::with_result
 {
 };
+}   //namespace system
+
+namespace mifare
+{
+struct get_ser_num: public reply::type
+{
+   data_type::value_type & flag()
+   {
+      return data_.at(framing::offset::reply_mifare_sernum_flag);
+   }
+
+   data_type sernum()
+   {
+      return mid(data_, framing::offset::reply_mifare_sernum);
+   }
+};
+} // namespace mifare
 } // namespace reply
 
 /// Encode command to packet.
 bool encode(data_type & packet, const command::type & command)
 {
-   // sanity checks
+// sanity checks
    if (command.data_.size() > framing::size::data_field_max)
    {
       BOOST_LOG_TRIVIAL(warning)<< "Data size is larger then max allowed value";
@@ -437,6 +529,8 @@ bool decode(const data_type & packet, reply::type & reply)
 }
 
 namespace command
+{
+namespace system
 {
 bool set_address(data_type & packet, const data_type::value_type & device_addr,
       const data_type::value_type & new_device_addr)
@@ -505,6 +599,21 @@ bool control_buzzer(data_type & packet, const data_type::value_type & device_add
 
    return message::encode(packet, command);
 }
+} // namespace system
+namespace mifare
+{
+bool get_ser_num(data_type & packet, const data_type::value_type & device_addr,
+      data_type::value_type request_mode = message::mifare_request_idle,
+      data_type::value_type execute_halt = message::mifare_no_halt)
+{
+   command::type command(device_addr);
+   command.id_ = command::id::MF_GET_SNR;
+   command.data_.push_back(request_mode);
+   command.data_.push_back(execute_halt);
+
+   return message::encode(packet, command);
+}
+} // namespace system
 } // namespace command
 
 namespace reply
