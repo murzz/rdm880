@@ -42,6 +42,9 @@ static const data_type::size_type reply_control_buzzer = 0;
 
 static const data_type::size_type reply_mifare_sernum_flag = 0;
 static const data_type::size_type reply_mifare_sernum = 1;
+
+static const data_type::size_type reply_atqb_len = 0;
+static const data_type::size_type reply_atqb = 1;
 }
 
 namespace size
@@ -633,6 +636,19 @@ struct transfer_cmd: public reply::type
 
 namespace iso14443_type_b
 {
+struct request: public reply::type
+{
+   data_type atq()
+   {
+      return mid(data_, framing::offset::reply_atqb);
+   }
+
+   data_type::value_type & reported_len()
+   {
+      return data_.at(framing::offset::reply_atqb_len);
+   }
+
+};
 struct transfer_cmd: public reply::type
 {
 };
@@ -801,6 +817,18 @@ bool transfer_cmd(data_type & packet, const data_type::value_type & device_addr,
 } // namespace mifare
 namespace iso14443_type_b
 {
+bool request(data_type & packet, const data_type::value_type & device_addr, const data_type::value_type & AFI,
+      const data_type::value_type & slot_num)
+{
+   command::type command(device_addr);
+   command.id_ = command::id::Request_B;
+
+   // values could be skipped from package, I guess some defaults are assumed by RDM
+   command.data_.push_back(AFI);
+   command.data_.push_back(slot_num);
+
+   return message::encode(packet, command);
+}
 bool transfer_cmd(data_type & packet, const data_type::value_type & device_addr, const data_type & cmd)
 {
    command::type command(device_addr);

@@ -366,6 +366,78 @@ bool mifare_get_ser_num(TimeoutSerial & serial)
    return true;
 }
 
+bool reqb(TimeoutSerial & serial)
+{
+   rdm::message::data_type::value_type device_addr =
+         rdm::message::default_device_addr;
+   rdm::message::data_type packet;
+
+   rdm::message::data_type::value_type AFI = 0x00;
+   rdm::message::data_type::value_type slot_num = 0x00;
+
+   if (!rdm::message::command::iso14443_type_b::request(packet, device_addr, AFI, slot_num))
+   {
+      return false;
+   }
+
+   std::vector<char> data_to_write;
+   std::copy(packet.begin(), packet.end(), std::back_inserter(data_to_write));
+   serial.write(data_to_write);
+
+   rdm::message::data_type packet_reply;
+   read_more:
+   {
+      std::vector<char> data_read;
+      data_read = serial.read(1);
+
+      std::copy(data_read.begin(), data_read.end(),
+            std::back_inserter(packet_reply));
+
+      rdm::message::reply::iso14443_type_b::request reply;
+      if (!rdm::message::reply::decode(packet_reply, reply))
+      {
+         BOOST_LOG_TRIVIAL(debug)<< "packet size: " << packet_reply.size();
+         BOOST_LOG_TRIVIAL(debug)<< "reading more...";
+         goto read_more;
+      }
+
+      if (rdm::message::reply::status::command_ok != reply.status())
+      {
+         BOOST_LOG_TRIVIAL(warning)<< "reply status is not ok: " << rdm::message::reply::status_to_str(reply.status());
+         BOOST_LOG_TRIVIAL(warning)<< "reply status code: " << rdm::message::reply::status_to_str(reply.status_code());
+         //BOOST_LOG_TRIVIAL(warning)<< "reply status code: " << reply.status_code();
+         //std::cout << reply.status_code();
+         return false;
+      }
+
+      BOOST_LOG_TRIVIAL(debug)<< "ATQB read successfully";
+
+//      std::uint32_t sernum = 0;
+//      const std::size_t expected_reply_sernum_size = sizeof(sernum);
+//      const std::size_t received_reply_sernum_size = reply.sernum().size();
+//      if (received_reply_sernum_size == expected_reply_sernum_size)
+//      {
+//         //std::memcpy(&sernum, reply.sernum().b);
+//         std::uint32_t * psernum = &sernum;
+//         for (size_t idx = 0; idx < sizeof(sernum); ++idx)
+//         {
+//            psernum[idx] = reply.sernum()[idx];
+//         }
+//
+//         BOOST_LOG_TRIVIAL(info)<< "card sernum: '" << sernum << "'";
+//      }
+//      else
+//      {
+//         std::stringstream ss;
+//         ss << std::hex << reply.sernum();
+//         BOOST_LOG_TRIVIAL(info)<< "card sernum: '" << ss.rdbuf() << "'";
+//         //BOOST_LOG_TRIVIAL(warning)<< "card sernum unexpected size";
+//      }
+   }
+
+   return true;
+}
+
 template<typename command>
 void send_command(command cmd)
 {
@@ -417,7 +489,7 @@ int main(int argc, char **argv)
 //   serial.exceptions(std::ios::badbit | std::ios::failbit); //Important!
 
    TimeoutSerial serial(device, 115200);
-   serial.setTimeout(boost::posix_time::seconds(3));
+   serial.setTimeout(boost::posix_time::seconds(5));
 
    boost::function<bool()> get_version;
    get_version = boost::bind(cmd_get_version_num, boost::ref(serial));
@@ -437,12 +509,16 @@ int main(int argc, char **argv)
    boost::function<bool()> cmd_iso15693_transfer_cmd;
    cmd_iso15693_transfer_cmd = boost::bind(iso15693_transfer_cmd, boost::ref(serial));
 
+   boost::function<bool()> cmd_reqb;
+   cmd_reqb = boost::bind(reqb, boost::ref(serial));
+
 //   send_command(get_version);
 //   send_command(get_sernum);
 //   send_command(cmd_mifare_get_ser_num);
 //   send_command(cmd_iso14443_type_b_transfer_cmd);
 //   send_command(cmd_iso14443_type_a_transfer_cmd);
-   send_command(cmd_iso15693_transfer_cmd);
+//   send_command(cmd_iso15693_transfer_cmd);
+   send_command(cmd_reqb);
 
    return EXIT_SUCCESS;
 }
