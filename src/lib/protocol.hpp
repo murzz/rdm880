@@ -8,6 +8,7 @@
 #include "misc.hpp"
 
 #include <boost/log/trivial.hpp>
+#include <boost/iostreams/stream.hpp>
 
 namespace rdm
 {
@@ -225,6 +226,12 @@ static const data_type::value_type mifare_no_halt = 0x00;
 /// Mifare get serial number command request mode: need to execute the halt command
 static const data_type::value_type mifare_do_halt = 0x01;
 
+/// Mifare ISO14443_TypeA_Transfer_Command: transfer CRC to the card
+static const data_type::value_type mifare_transfer_crc = 0x01;
+
+/// Mifare ISO14443_TypeA_Transfer_Command: do not transfer CRC to the card
+static const data_type::value_type mifare_no_transfer_crc = 0x00;
+
 enum class baudrate
 {
    baud_9600 = 0x00, baud_19200 = 0x01, baud_38400 = 0x02, baud_57600 = 0x03, baud_115200 = 0x04,
@@ -237,6 +244,67 @@ enum class id
 {
    /// not part of protocol, should mark empty command
    Empty = 0x00,
+
+   /// ISO14443-B Command (0x09-0x0E)
+
+   ///  ISO14443B REQB Command
+   Request_B = 0x09,
+
+   /// ISO14443B Anti-collision
+   AnticollB = 0x0A,
+
+   /// ISO14443B ATTRIB Command
+   Attrib_B = 0x0B,
+
+   /// Integrate the REQB and ATTRIB Command
+   Rst_TypeB = 0x0C,
+
+   /// ISO14443-4 transparent command Type B Card
+   ISO14443_TypeB_Transfer_Command = 0x0D,
+
+   /// ISO15693 Commands (0x10~0x1D)
+
+   ///  ISO15693 Inventory Command
+   ISO15693_Inventory = 0x10,
+
+   /// ISO15693 Read Command
+   ISO15693_Read = 0x11,
+
+   /// ISO15693 Write Command
+   ISO15693_Write = 0x12,
+
+   /// ISO15693 Lock_Block Command
+   ISO15693_Lockblock = 0x13,
+
+   /// ISO15693 Stay_Quiet Command
+   ISO15693_StayQuiet = 0x14,
+
+   /// ISO15693_Select Command
+   ISO1569_Select = 0x15,
+
+   /// ISO15693_Reset_To_Ready Command
+   ISO15693_Resetready = 0x16,
+
+   /// ISO15693_Write_AFI Command
+   ISO15693_Write_Afi = 0x17,
+
+   /// ISO15693_Lock_AFI Command
+   ISO15693_Lock_Afi = 0x18,
+
+   /// ISO15693_Write_DSFID Command
+   ISO15693_Write_Dsfid = 0x19,
+
+   /// ISO15693_Lock_DSFID Command
+   ISO15693_Lock_Dsfid = 0x1A,
+
+   /// ISO15693_Get_System_Information Command
+   ISO15693_Get_Information = 0x1B,
+
+   /// ISO15693_Get_Multiple_Block_Security Command
+   ISO15693_Get_Multiple_Block_Security = 0x1C,
+
+   ///Using this command may transparent any    command to The Card which command   meet the ISO15693 protocol
+   ISO15693_Transfer_Command = 0x1D,
 
    /// Mifare Application Commands (0x20~0x2F)
 
@@ -266,28 +334,37 @@ enum class id
 
    /// Using this command you may transparent any command to The Card which these commands meet
    /// the ISO14443-TypeA protocol
-   MF_ISO14443_TypeA_Transfer_Command = 0x28,
+   ISO14443_TypeA_Transfer_Command = 0x28,
 
    /// System commands (0x80~0x8F)
 
    /// Program the Device Address to the reader (The  range of address is 0~255)
    SetAddress = 0x80,
+
    /// Set the reader’s communication baud rate(9600~115200)
    SetBaudrate = 0x81,
+
    /// Set the reader’s Serial Number(The Seial Number is 8 byte)
    SetSerlNum = 0x82,
+
    /// Get the reader’s Serial Number And Address
    GetSerlNum = 0x83,
+
    /// Set the Usr Information
    Write_UserInfo = 0x84,
+
    /// Get the Usr Information
    Read_UserInfo = 0x85,
+
    /// Get the reader’s firmware version number
    Get_VersionNum = 0x86,
+
    /// Turn On/Off the LED1
    Control_Led1 = 0x87,
+
    /// Turn On/Off the LED2
    Control_Led2 = 0x88,
+
    /// Turn On/Off the Buzzer
    Control_Buzzer = 0x89,
 };
@@ -359,6 +436,81 @@ enum class status
    iso15693_failed = 0x96,
 };
 
+std::string status_to_str(const reply::status & status)
+{
+   std::string status_str = "unknown";
+   switch (status)
+   {
+//System Error/Status Codes (0x00-0x0F)
+   case reply::status::command_ok:
+      status_str = "Command OK";
+      break;
+   case reply::status::command_failure:
+      status_str = "Command FAILURE";
+      break;
+   case reply::status::set_ok:
+      status_str = "SET OK";
+      break;
+   case reply::status::set_failure:
+      status_str = "SET FAILURE";
+      break;
+   case reply::status::reader_reply_timeout:
+      status_str = "Reader reply time out error";
+      break;
+   case reply::status::card_not_exists:
+      status_str = "The card do not exist";
+      break;
+   case reply::status::card_response_error:
+      status_str = "The data response from the card is error";
+      break;
+   case reply::status::unknown_parameter:
+      status_str = "The parameter of the command or the Format of the command Error";
+      break;
+   case reply::status::internal_error:
+      status_str = "Unknown Internal Error";
+      break;
+   case reply::status::unknown_command:
+      status_str = "Reader received unknown command";
+      break;
+
+      //ISO14443 Error Codes：
+   case reply::status::iso14443_init_val_error:
+      status_str = "Some Error appear in the card InitVal process";
+      break;
+   case reply::status::iso14443_anticollision_error:
+      status_str = "Get The Wrong Snr during anticollison loop";
+      break;
+   case reply::status::iso14443_auth_failure:
+      status_str = "The authentication failure";
+      break;
+
+      //ISO15693  Error Codes：
+   case reply::status::iso15693_unsupported_command:
+      status_str = "The Card do not support this command";
+      break;
+   case reply::status::iso15693_format_error:
+      status_str = "The Foarmat Of  The Command Erro";
+      break;
+   case reply::status::iso15693_unsupported_option:
+      status_str = "Do not support Option mode";
+      break;
+   case reply::status::iso15693_block_not_exists:
+      status_str = "The Block Do Not Exist";
+      break;
+   case reply::status::iso15693_object_locked:
+      status_str = "The Object have been locked";
+      break;
+   case reply::status::iso15693_lock_failed:
+      status_str = "The lock Operation Do Not Success";
+      break;
+   case reply::status::iso15693_failed:
+      status_str = "The Operation Do Not Success";
+      break;
+   };
+
+   return status_str;
+}
+
 struct type
 {
    data_type::value_type device_addr_;
@@ -383,7 +535,7 @@ struct type
       return status_;
    }
 
-   /// If status is no OK then there might be status code with error description
+/// If status is no OK then there might be status code with error description
    const reply::status status_code() const
    {
       if (reply::status::command_ok == status_)
@@ -394,8 +546,8 @@ struct type
       reply::status status_code = reply::status::command_ok;
 
       const auto dist_signed = std::distance(data_.begin(), data_.end());
-      data_type::size_type dist_unsigned = dist_signed < 0 ? 0 : dist_signed;
-      if (dist_unsigned > framing::offset::status_code + framing::size::status_code)
+      const data_type::size_type dist_unsigned = dist_signed < 0 ? 0 : dist_signed;
+      if (dist_unsigned >= framing::offset::status_code + framing::size::status_code)
       {
          status_code = static_cast<message::reply::status>(data_.at(framing::offset::status_code));
       }
@@ -474,7 +626,25 @@ struct get_ser_num: public reply::type
       return mid(data_, framing::offset::reply_mifare_sernum);
    }
 };
+struct transfer_cmd: public reply::type
+{
+};
 } // namespace mifare
+
+namespace iso14443_type_b
+{
+struct transfer_cmd: public reply::type
+{
+};
+} // namespace iso14443_type_b
+
+namespace iso15693
+{
+struct transfer_cmd: public reply::type
+{
+};
+} // namespace iso15693
+
 } // namespace reply
 
 /// Encode command to packet.
@@ -613,7 +783,49 @@ bool get_ser_num(data_type & packet, const data_type::value_type & device_addr,
 
    return message::encode(packet, command);
 }
-} // namespace system
+
+/// This command is using for transparent any command to The Card which these
+/// commands meet the ISO14443-Typea protocol
+bool transfer_cmd(data_type & packet, const data_type::value_type & device_addr,
+      const data_type::value_type & crc_flag, const data_type & cmd)
+{
+   command::type command(device_addr);
+   command.id_ = command::id::ISO14443_TypeA_Transfer_Command;
+
+   command.data_ = cmd;
+   command.data_.push_front(cmd.size());
+   command.data_.push_front(crc_flag);
+
+   return message::encode(packet, command);
+}
+} // namespace mifare
+namespace iso14443_type_b
+{
+bool transfer_cmd(data_type & packet, const data_type::value_type & device_addr, const data_type & cmd)
+{
+   command::type command(device_addr);
+   command.id_ = command::id::ISO14443_TypeB_Transfer_Command;
+
+   command.data_ = cmd;
+   command.data_.push_front(cmd.size());
+
+   return message::encode(packet, command);
+}
+} // namespace iso14443_type_b
+namespace iso15693
+{
+/// This command is using for transparent any command to The Card which these commands meet the ISO15693 protocol.
+bool transfer_cmd(data_type & packet, const data_type::value_type & device_addr, const data_type & cmd)
+{
+   command::type command(device_addr);
+   command.id_ = command::id::ISO15693_Transfer_Command;
+
+   command.data_ = cmd;
+   command.data_.push_front(cmd.size());
+
+   return message::encode(packet, command);
+}
+} // namespace iso15693
 } // namespace command
 
 namespace reply
@@ -626,11 +838,32 @@ bool decode(const data_type & packet, reply::type & reply)
 } // mamespace message
 } // namespace RDM
 
+//std::ostream & operator<<(std::ostream & os, const rdm::message::reply::status & status)
+//{
+//   os << rdm::message::reply::status_to_str(status);
+//   return os;
+//}
+
+//std::stringstream:: & operator<<(std::stringstream & os, const rdm::message::reply::status & status)
+//{
+//   os << rdm::message::reply::status_to_str(status);
+//   return os.rd;
+//}
+
+//boost::basic_wrap_stringstream & operator<<(boost::basic_wrap_stringstream & os, const rdm::message::reply::status & status)
+//{
+//   os << rdm::message::reply::status_to_str(status);
+//   return os;
+//}
+
+//std::stringstream ss;
+//ss << reply.sernum();
+
 std::ostream & operator<<(std::ostream & os, const rdm::message::data_type & rhs)
 {
-   std::stringstream ss;
-   std::copy(rhs.begin(), rhs.end(), std::ostream_iterator<uint8_t>(ss));
-   BOOST_LOG_TRIVIAL(debug)<< "<< " << ss.rdbuf() << std::endl;
+//   std::stringstream ss;
+//   std::copy(rhs.begin(), rhs.end(), std::ostream_iterator<uint8_t>(ss));
+//   BOOST_LOG_TRIVIAL(debug)<< "<< " << ss.rdbuf() << std::endl;
 
    std::copy(rhs.begin(), rhs.end(), std::ostream_iterator<rdm::message::data_type::value_type>(os));
    return os;
