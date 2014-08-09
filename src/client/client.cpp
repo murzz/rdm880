@@ -7,14 +7,14 @@
 #include "TimeoutSerial.h"
 #include "protocol.hpp"
 
-//bool cmd_get_version_num(SerialStream & serial)
-bool cmd_get_version_num(TimeoutSerial & serial)
+template<typename serial_device_type, typename cmd_encoder, typename reply_type>
+bool send_receive(serial_device_type & serial, cmd_encoder encoder, reply_type & reply)
 {
    rdm::message::data_type::value_type device_addr =
          rdm::message::default_device_addr;
    rdm::message::data_type packet;
 
-   if (!rdm::message::command::system::get_version_num(packet, device_addr))
+   if (!encoder(packet, device_addr))
    {
       return false;
    }
@@ -23,6 +23,9 @@ bool cmd_get_version_num(TimeoutSerial & serial)
    std::copy(packet.begin(), packet.end(), std::back_inserter(data_to_write));
    serial.write(data_to_write);
 
+   // reading by byte trying to decode it each time.
+   // read more if decode failed
+   // stop reading if decode succeeded
    rdm::message::data_type packet_reply;
    read_more:
    {
@@ -32,408 +35,150 @@ bool cmd_get_version_num(TimeoutSerial & serial)
       std::copy(data_read.begin(), data_read.end(),
             std::back_inserter(packet_reply));
 
-      // dbg
-//      std::cout << "data size: " << std::dec << data_read.size() << std::endl;
-//      for (const auto & item : data_read)
-//      {
-//         std::cout << std::hex;
-//
-//         std::cout << (int) item;
-//         std::cout << std::endl;
-//      }
-//
-//      std::cout << "packet size: " << std::dec << data_read.size() << std::endl;
-//      for (const auto & item : packet_reply)
-//      {
-//         std::cout << std::hex;
-//
-//         std::cout << (int) item;
-//         std::cout << std::endl;
-//      }
-
-//      std::copy(packet_reply.begin(), packet_reply.end(),
-//            std::ostream_iterator<rdm::message::data_type::value_type>(
-//                  std::cout, " "));
-
-//std::cout << std::endl;
-
-      rdm::message::reply::system::get_version_num version_num;
-      if (!rdm::message::reply::decode(packet_reply, version_num))
+      if (!rdm::message::reply::decode(packet_reply, reply))
       {
          BOOST_LOG_TRIVIAL(debug)<< "reading more...";
-         goto read_more;
+         goto read_more; // Don't be scared
       }
-
-//      std::stringstream ss;
-//      std::copy(version_num.version().begin(), version_num.version().end(),
-//            std::ostream_iterator<char>(ss));
-
-      std::string version;
-      // get rid of 0 or non print characters
-      for (const auto & item : version_num.version())
-      {
-         if ('\0' != item)
-         {
-            version += std::iswprint(item) ? item : '.';
-         }
-      }
-      BOOST_LOG_TRIVIAL(info)<< "version: '" << version << "'";
    }
-   // serial << packet;
-////   sleep(1);
-//   std::string s;
-//
-//   serial >> s;
-//   std::cout << s << std::endl;
 
-//   read_again:
-//   try
-//   {
-   //serial >> packet_reply;
-//   }
-//   catch (TimeoutException &)
-//   {
-//      std::cout << "size " << packet_reply.size() << std::endl;
-//      if (0 == packet_reply.size())
-//      {
-//         goto read_again;
-//      }
-//   rdm::message::reply::get_version_num version_num;
-//   if (!rdm::message::reply::decode(packet_reply, version_num))
-//   {
-////         throw;
-//      return false;
-//   }
-//   std::cout << "version: '" << version_num.version() << "'" << std::endl;
-////   }
+   if (rdm::message::reply::status::command_ok != reply.status())
+   {
+      BOOST_LOG_TRIVIAL(warning)<< "reply status is not ok: " << rdm::message::reply::status_to_str(reply.status());
+      BOOST_LOG_TRIVIAL(warning)<< "reply status code: " << rdm::message::reply::status_to_str(reply.status_code());
+      //BOOST_LOG_TRIVIAL(warning)<< "reply status code: " << reply.status_code();
+      //std::cout << reply.status_code();
+      return false;
+   }
+
+   return true;
+}
+
+bool cmd_get_version_num(TimeoutSerial & serial)
+{
+   auto encoder = boost::bind(rdm::message::command::system::get_version_num, _1, _2);
+
+   rdm::message::reply::system::get_ser_num reply;
+   if (!send_receive(serial, encoder, reply))
+   {
+      return false;
+   }
+
+   std::string version;
+   // get rid of 0 or non print characters
+   for (const auto & item : reply.sernum())
+   {
+      version += std::iswprint(item) ? item : '.';
+   }
+   BOOST_LOG_TRIVIAL(info)<< "version: '" << version << "'";
 
    return true;
 }
 
 bool cmd_get_ser_num(TimeoutSerial & serial)
 {
-   rdm::message::data_type::value_type device_addr =
-         rdm::message::default_device_addr;
-   rdm::message::data_type packet;
+   auto encoder = boost::bind(rdm::message::command::system::get_ser_num, _1, _2);
 
-   if (!rdm::message::command::system::get_ser_num(packet, device_addr))
+   rdm::message::reply::system::get_ser_num reply;
+   if (!send_receive(serial, encoder, reply))
    {
       return false;
    }
 
-   std::vector<char> data_to_write;
-   std::copy(packet.begin(), packet.end(), std::back_inserter(data_to_write));
-   serial.write(data_to_write);
-
-   rdm::message::data_type packet_reply;
-   read_more:
+   // dealing with reply
+   std::string sernum;
+   // get rid of 0 or non print characters
+   for (const auto & item : reply.sernum())
    {
-      std::vector<char> data_read;
-      data_read = serial.read(1);
-
-      std::copy(data_read.begin(), data_read.end(),
-            std::back_inserter(packet_reply));
-
-      rdm::message::reply::system::get_ser_num reply;
-      if (!rdm::message::reply::decode(packet_reply, reply))
-      {
-         BOOST_LOG_TRIVIAL(debug)<< "reading more...";
-         goto read_more;
-      }
-
-      std::string sernum;
-      // get rid of 0 or non print characters
-      for (const auto & item : reply.sernum())
-      {
-         if ('\0' != item)
-         {
-            sernum += std::iswprint(item) ? item : '.';
-         }
-      }
-      BOOST_LOG_TRIVIAL(info)<< "sernum: '" << sernum << "'";
+      sernum += std::iswprint(item) ? item : '.';
    }
+   BOOST_LOG_TRIVIAL(info)<< "sernum: '" << sernum << "'";
 
    return true;
 }
 
 bool iso14443_type_b_transfer_cmd(TimeoutSerial & serial)
 {
-   rdm::message::data_type::value_type device_addr =
-         rdm::message::default_device_addr;
-   rdm::message::data_type packet;
-
    rdm::message::data_type cmd =
          { 0x00, 0x84, 0x00, 0x00, 0x08 }; // get random data
-   if (!rdm::message::command::iso14443_type_b::transfer_cmd(packet, device_addr, cmd))
+
+   auto encoder = boost::bind(rdm::message::command::iso14443_type_b::transfer_cmd, _1, _2, cmd);
+
+   rdm::message::reply::system::get_ser_num reply;
+   if (!send_receive(serial, encoder, reply))
    {
       return false;
    }
 
-   std::vector<char> data_to_write;
-   std::copy(packet.begin(), packet.end(), std::back_inserter(data_to_write));
-   serial.write(data_to_write);
-
-   rdm::message::data_type packet_reply;
-   read_more:
-   {
-      std::vector<char> data_read;
-      data_read = serial.read(1);
-
-      std::copy(data_read.begin(), data_read.end(),
-            std::back_inserter(packet_reply));
-
-      rdm::message::reply::iso14443_type_b::transfer_cmd reply;
-      if (!rdm::message::reply::decode(packet_reply, reply))
-      {
-         BOOST_LOG_TRIVIAL(debug)<< "reading more...";
-         goto read_more;
-      }
-
-      if (rdm::message::reply::status::command_ok != reply.status())
-      {
-         BOOST_LOG_TRIVIAL(warning)<< "reply status is not ok: " << rdm::message::reply::status_to_str(reply.status());
-         BOOST_LOG_TRIVIAL(warning)<< "reply status code: " << rdm::message::reply::status_to_str(reply.status_code());
-         //BOOST_LOG_TRIVIAL(warning)<< "reply status code: " << reply.status_code();
-         //std::cout << reply.status_code();
-         return false;
-      }
-
-      BOOST_LOG_TRIVIAL(info)<< "reply size: '" << reply.data_.size() << "'";
-   }
-
+   BOOST_LOG_TRIVIAL(info)<< "reply size: '" << reply.data_.size() << "'";
    return true;
 }
 
 bool iso14443_type_a_transfer_cmd(TimeoutSerial & serial)
 {
-   rdm::message::data_type::value_type device_addr =
-         rdm::message::default_device_addr;
-   rdm::message::data_type packet;
-
    rdm::message::data_type cmd =
          { 0x00, 0x84, 0x00, 0x00, 0x08 }; // ISO14443 APDU Command
-   if (!rdm::message::command::mifare::transfer_cmd(packet, device_addr, rdm::message::mifare_no_transfer_crc, cmd))
+   auto encoder = boost::bind(rdm::message::command::mifare::transfer_cmd, _1, _2,
+         rdm::message::mifare_no_transfer_crc, cmd);
+
+   rdm::message::reply::system::get_ser_num reply;
+   if (!send_receive(serial, encoder, reply))
    {
       return false;
    }
 
-   std::vector<char> data_to_write;
-   std::copy(packet.begin(), packet.end(), std::back_inserter(data_to_write));
-   serial.write(data_to_write);
-
-   rdm::message::data_type packet_reply;
-   read_more:
-   {
-      std::vector<char> data_read;
-      data_read = serial.read(1);
-
-      std::copy(data_read.begin(), data_read.end(),
-            std::back_inserter(packet_reply));
-
-      rdm::message::reply::mifare::transfer_cmd reply;
-      if (!rdm::message::reply::decode(packet_reply, reply))
-      {
-         BOOST_LOG_TRIVIAL(debug)<< "reading more...";
-         goto read_more;
-      }
-
-      if (rdm::message::reply::status::command_ok != reply.status())
-      {
-         BOOST_LOG_TRIVIAL(warning)<< "reply status is not ok: " << rdm::message::reply::status_to_str(reply.status());
-         BOOST_LOG_TRIVIAL(warning)<< "reply status code: " << rdm::message::reply::status_to_str(reply.status_code());
-         //BOOST_LOG_TRIVIAL(warning)<< "reply status code: " << reply.status_code();
-         //std::cout << reply.status_code();
-         return false;
-      }
-
-      BOOST_LOG_TRIVIAL(info)<< "reply size: '" << reply.data_.size() << "'";
-   }
-
+   BOOST_LOG_TRIVIAL(info)<< "reply size: '" << reply.data_.size() << "'";
    return true;
 }
 
 bool iso15693_transfer_cmd(TimeoutSerial & serial)
 {
-   rdm::message::data_type::value_type device_addr =
-         rdm::message::default_device_addr;
-   rdm::message::data_type packet;
-
    rdm::message::data_type cmd =
          { 0x02, 0x2B }; // Get The Card’s Information
-   if (!rdm::message::command::iso15693::transfer_cmd(packet, device_addr, cmd))
+   auto encoder = boost::bind(rdm::message::command::iso15693::transfer_cmd, _1, _2, cmd);
+
+   rdm::message::reply::system::get_ser_num reply;
+   if (!send_receive(serial, encoder, reply))
    {
       return false;
    }
 
-   std::vector<char> data_to_write;
-   std::copy(packet.begin(), packet.end(), std::back_inserter(data_to_write));
-   serial.write(data_to_write);
-
-   rdm::message::data_type packet_reply;
-   read_more:
-   {
-      std::vector<char> data_read;
-      data_read = serial.read(1);
-
-      std::copy(data_read.begin(), data_read.end(),
-            std::back_inserter(packet_reply));
-
-      rdm::message::reply::iso15693::transfer_cmd reply;
-      if (!rdm::message::reply::decode(packet_reply, reply))
-      {
-         BOOST_LOG_TRIVIAL(debug)<< "reading more...";
-         goto read_more;
-      }
-
-      if (rdm::message::reply::status::command_ok != reply.status())
-      {
-         BOOST_LOG_TRIVIAL(warning)<< "reply status is not ok: " << rdm::message::reply::status_to_str(reply.status());
-         BOOST_LOG_TRIVIAL(warning)<< "reply status code: " << rdm::message::reply::status_to_str(reply.status_code());
-         //BOOST_LOG_TRIVIAL(warning)<< "reply status code: " << reply.status_code();
-         //std::cout << reply.status_code();
-         return false;
-      }
-
-      BOOST_LOG_TRIVIAL(info)<< "reply size: '" << reply.data_.size() << "'";
-   }
+   BOOST_LOG_TRIVIAL(info)<< "reply size: '" << reply.data_.size() << "'";
 
    return true;
 }
 
 bool mifare_get_ser_num(TimeoutSerial & serial)
 {
-   rdm::message::data_type::value_type device_addr =
-         rdm::message::default_device_addr;
-   rdm::message::data_type packet;
+   auto encoder = boost::bind(rdm::message::command::mifare::get_ser_num, _1, _2,
+         rdm::message::mifare_request_idle, rdm::message::mifare_no_halt);
 
-   if (!rdm::message::command::mifare::get_ser_num(packet, device_addr))
+   rdm::message::reply::mifare::get_ser_num reply;
+   if (!send_receive(serial, encoder, reply))
    {
       return false;
    }
 
-   std::vector<char> data_to_write;
-   std::copy(packet.begin(), packet.end(), std::back_inserter(data_to_write));
-   serial.write(data_to_write);
-
-   rdm::message::data_type packet_reply;
-   read_more:
-   {
-      std::vector<char> data_read;
-      data_read = serial.read(1);
-
-      std::copy(data_read.begin(), data_read.end(),
-            std::back_inserter(packet_reply));
-
-      rdm::message::reply::mifare::get_ser_num reply;
-      if (!rdm::message::reply::decode(packet_reply, reply))
-      {
-         BOOST_LOG_TRIVIAL(debug)<< "reading more...";
-         goto read_more;
-      }
-
-      if (rdm::message::reply::status::command_ok != reply.status())
-      {
-         BOOST_LOG_TRIVIAL(warning)<< "reply status is not ok: " << rdm::message::reply::status_to_str(reply.status());
-         BOOST_LOG_TRIVIAL(warning)<< "reply status code: " << rdm::message::reply::status_to_str(reply.status_code());
-         //BOOST_LOG_TRIVIAL(warning)<< "reply status code: " << reply.status_code();
-         //std::cout << reply.status_code();
-         return false;
-      }
-
-      std::uint32_t sernum = 0;
-      const std::size_t expected_reply_sernum_size = sizeof(sernum);
-      const std::size_t received_reply_sernum_size = reply.sernum().size();
-      if (received_reply_sernum_size == expected_reply_sernum_size)
-      {
-         //std::memcpy(&sernum, reply.sernum().b);
-         std::uint32_t * psernum = &sernum;
-         for (size_t idx = 0; idx < sizeof(sernum); ++idx)
-         {
-            psernum[idx] = reply.sernum()[idx];
-         }
-
-         BOOST_LOG_TRIVIAL(info)<< "card sernum: '" << sernum << "'";
-      }
-      else
-      {
-         std::stringstream ss;
-         ss << std::hex << reply.sernum();
-         BOOST_LOG_TRIVIAL(info)<< "card sernum: '" << ss.rdbuf() << "'";
-         //BOOST_LOG_TRIVIAL(warning)<< "card sernum unexpected size";
-      }
-   }
+   std::stringstream ss;
+   ss << std::hex << reply.sernum();
+   BOOST_LOG_TRIVIAL(info)<< "card sernum: '" << ss.rdbuf() << "'";
 
    return true;
 }
 
 bool reqb(TimeoutSerial & serial)
 {
-   rdm::message::data_type::value_type device_addr =
-         rdm::message::default_device_addr;
-   rdm::message::data_type packet;
-
    rdm::message::data_type::value_type AFI = 0x00;
    rdm::message::data_type::value_type slot_num = 0x00;
+   auto encoder = boost::bind(rdm::message::command::iso14443_type_b::request, _1, _2, AFI, slot_num);
 
-   if (!rdm::message::command::iso14443_type_b::request(packet, device_addr, AFI, slot_num))
+   rdm::message::reply::mifare::get_ser_num reply;
+   if (!send_receive(serial, encoder, reply))
    {
       return false;
    }
 
-   std::vector<char> data_to_write;
-   std::copy(packet.begin(), packet.end(), std::back_inserter(data_to_write));
-   serial.write(data_to_write);
-
-   rdm::message::data_type packet_reply;
-   read_more:
-   {
-      std::vector<char> data_read;
-      data_read = serial.read(1);
-
-      std::copy(data_read.begin(), data_read.end(),
-            std::back_inserter(packet_reply));
-
-      rdm::message::reply::iso14443_type_b::request reply;
-      if (!rdm::message::reply::decode(packet_reply, reply))
-      {
-         BOOST_LOG_TRIVIAL(debug)<< "packet size: " << packet_reply.size();
-         BOOST_LOG_TRIVIAL(debug)<< "reading more...";
-         goto read_more;
-      }
-
-      if (rdm::message::reply::status::command_ok != reply.status())
-      {
-         BOOST_LOG_TRIVIAL(warning)<< "reply status is not ok: " << rdm::message::reply::status_to_str(reply.status());
-         BOOST_LOG_TRIVIAL(warning)<< "reply status code: " << rdm::message::reply::status_to_str(reply.status_code());
-         //BOOST_LOG_TRIVIAL(warning)<< "reply status code: " << reply.status_code();
-         //std::cout << reply.status_code();
-         return false;
-      }
-
-      BOOST_LOG_TRIVIAL(debug)<< "ATQB read successfully";
-
-//      std::uint32_t sernum = 0;
-//      const std::size_t expected_reply_sernum_size = sizeof(sernum);
-//      const std::size_t received_reply_sernum_size = reply.sernum().size();
-//      if (received_reply_sernum_size == expected_reply_sernum_size)
-//      {
-//         //std::memcpy(&sernum, reply.sernum().b);
-//         std::uint32_t * psernum = &sernum;
-//         for (size_t idx = 0; idx < sizeof(sernum); ++idx)
-//         {
-//            psernum[idx] = reply.sernum()[idx];
-//         }
-//
-//         BOOST_LOG_TRIVIAL(info)<< "card sernum: '" << sernum << "'";
-//      }
-//      else
-//      {
-//         std::stringstream ss;
-//         ss << std::hex << reply.sernum();
-//         BOOST_LOG_TRIVIAL(info)<< "card sernum: '" << ss.rdbuf() << "'";
-//         //BOOST_LOG_TRIVIAL(warning)<< "card sernum unexpected size";
-//      }
-   }
+   BOOST_LOG_TRIVIAL(debug)<< "ATQB read successfully";
 
    return true;
 }
@@ -441,7 +186,7 @@ bool reqb(TimeoutSerial & serial)
 template<typename command>
 void send_command(command cmd)
 {
-   for (size_t retry = 1; retry; --retry)
+   for (size_t retry = 3; retry; --retry)
    {
       try
       {
@@ -491,26 +236,13 @@ int main(int argc, char **argv)
    TimeoutSerial serial(device, 115200);
    serial.setTimeout(boost::posix_time::seconds(5));
 
-   boost::function<bool()> get_version;
-   get_version = boost::bind(cmd_get_version_num, boost::ref(serial));
-
-   boost::function<bool()> get_sernum;
-   get_sernum = boost::bind(cmd_get_ser_num, boost::ref(serial));
-
-   boost::function<bool()> cmd_mifare_get_ser_num;
-   cmd_mifare_get_ser_num = boost::bind(mifare_get_ser_num, boost::ref(serial));
-
-   boost::function<bool()> cmd_iso14443_type_b_transfer_cmd;
-   cmd_iso14443_type_b_transfer_cmd = boost::bind(iso14443_type_b_transfer_cmd, boost::ref(serial));
-
-   boost::function<bool()> cmd_iso14443_type_a_transfer_cmd;
-   cmd_iso14443_type_a_transfer_cmd = boost::bind(iso14443_type_a_transfer_cmd, boost::ref(serial));
-
-   boost::function<bool()> cmd_iso15693_transfer_cmd;
-   cmd_iso15693_transfer_cmd = boost::bind(iso15693_transfer_cmd, boost::ref(serial));
-
-   boost::function<bool()> cmd_reqb;
-   cmd_reqb = boost::bind(reqb, boost::ref(serial));
+   auto get_version = boost::bind(cmd_get_version_num, boost::ref(serial));
+   auto get_sernum = boost::bind(cmd_get_ser_num, boost::ref(serial));
+   auto cmd_mifare_get_ser_num = boost::bind(mifare_get_ser_num, boost::ref(serial));
+   auto cmd_iso14443_type_b_transfer_cmd = boost::bind(iso14443_type_b_transfer_cmd, boost::ref(serial));
+   auto cmd_iso14443_type_a_transfer_cmd = boost::bind(iso14443_type_a_transfer_cmd, boost::ref(serial));
+   auto cmd_iso15693_transfer_cmd = boost::bind(iso15693_transfer_cmd, boost::ref(serial));
+   auto cmd_reqb = boost::bind(reqb, boost::ref(serial));
 
 //   send_command(get_version);
 //   send_command(get_sernum);
