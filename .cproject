@@ -52,7 +52,6 @@
 			<resource resourceType="PROJECT" workspacePath="/rdm880"/>
 		</configuration>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.1036889840;cdt.managedbuild.toolchain.gnu.base.1036889840.1974734784;cdt.managedbuild.tool.gnu.c.compiler.base.626763670;cdt.managedbuild.tool.gnu.c.compiler.input.2130995776">
@@ -63,4 +62,40 @@
 		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+		<buildTargets>
+			<target name="rdm-lib" path="src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>rdm-lib</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="rdm-client" path="src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>rdm-client</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="rdm-test" path="src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>rdm-test</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+			<target name="clean" path="src" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments>-j8</buildArguments>
+				<buildTarget>clean</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+		</buildTargets>
+	</storageModule>
 </cproject>

@@ -1,11 +1,14 @@
 #include <cstdlib>
 #include <iostream>
+
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
+#include <boost/log/trivial.hpp>
+
 #include "serialstream.h"
 #include "TimeoutSerial.h"
-#include "protocol.hpp"
+#include "rdm.hpp"
 
 template<typename serial_device_type, typename cmd_encoder, typename reply_type>
 bool send_receive(serial_device_type & serial, cmd_encoder encoder, reply_type & reply)

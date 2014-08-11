@@ -9,11 +9,11 @@ include_directories(
     
 add_executable(${PROJECT_NAME}
     client.cpp
-    serialstream.cpp
+    #serialstream.cpp
     TimeoutSerial.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
-    ${Boost_LIBRARIES}
     ${PROJECT_NAME_LIB}
+    ${Boost_LIBRARIES}
 )
