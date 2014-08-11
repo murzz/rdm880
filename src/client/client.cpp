@@ -119,16 +119,33 @@ bool iso14443_type_b_transfer_cmd(TimeoutSerial & serial)
 
 bool select_app(TimeoutSerial & serial)
 {
-   std::string app_id = "1TIC.ICA";
+//   std::string app_id = "1TIC.ICA";
+//   rdm::message::data_type apdu =
+//         {
+//               0x94, // CLA
+//               0xA4, // INS
+//               0x04, // P1
+//               0x00, // P2
+//         };
+//   apdu.push_back(app_id.size());
+//   std::copy(app_id.begin(), app_id.end(), std::back_inserter(apdu));
+
    rdm::message::data_type apdu =
          {
                0x94, // CLA
                0xA4, // INS
                0x04, // P1
                0x00, // P2
+               0x8,
+               0x31,
+               0x54,
+               0x49,
+               0x43,
+               0x2e,
+               0x49,
+               0x43,
+               0x41,
          };
-   apdu.push_back(app_id.size());
-   std::copy(app_id.begin(), app_id.end(), std::back_inserter(apdu));
 
    auto encoder = boost::bind(rdm::message::command::iso14443_type_b::transfer_cmd, _1, _2, apdu);
 
