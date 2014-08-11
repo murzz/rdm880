@@ -4,6 +4,7 @@ project(rdm)
 
 add_definitions(-std=c++11 -std=gnu++11)
 add_definitions(-Wall)
+add_definitions(-fPIC)
 #add_definitions(-static)
 
 #SET(Boost_USE_STATIC_LIBS ON)
