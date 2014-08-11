@@ -337,6 +337,16 @@ namespace rdm
             {
                return data_.at(framing::offset::reply_atqb_len);
             }
+
+            data_type reset::sernum()
+            {
+               return mid(data_, framing::offset::reply_rstb);
+            }
+
+            const data_type::value_type & reset::reported_len()
+            {
+               return data_.at(framing::offset::reply_rstb_len);
+            }
          } // namespace iso14443_type_b
 
          namespace iso15693
@@ -511,6 +521,14 @@ namespace rdm
                // values could be skipped from package, I guess some defaults are assumed by RDM
                command.data_.push_back(AFI);
                command.data_.push_back(slot_num);
+
+               return message::encode(packet, command);
+            }
+
+            bool reset(data_type & packet, const data_type::value_type & device_addr)
+            {
+               command::type command(device_addr);
+               command.id_ = command::id::Rst_TypeB;
 
                return message::encode(packet, command);
             }

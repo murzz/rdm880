@@ -41,6 +41,11 @@ namespace rdm
 
             static const data_type::size_type reply_atqb_len = 0;
             static const data_type::size_type reply_atqb = 1;
+
+            static const data_type::size_type reply_rstb_len = 0;
+            /// @note specs failing me here, SNR starts from first byte, not second
+            //static const data_type::size_type reply_rstb = 1;
+            static const data_type::size_type reply_rstb = 0;
          } // namespace offset
 
          namespace size

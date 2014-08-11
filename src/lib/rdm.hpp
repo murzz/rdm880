@@ -11,7 +11,11 @@ namespace rdm
 
       enum class baudrate
       {
-         baud_9600 = 0x00, baud_19200 = 0x01, baud_38400 = 0x02, baud_57600 = 0x03, baud_115200 = 0x04,
+         baud_9600 = 0x00,
+         baud_19200 = 0x01,
+         baud_38400 = 0x02,
+         baud_57600 = 0x03,
+         baud_115200 = 0x04,
       };
 
       /// default device address, @c 0x00 for point-to-point connection (RS-232).
@@ -181,6 +185,14 @@ namespace rdm
 
                const data_type::value_type & reported_len();
             };
+
+            struct reset: public reply::type
+            {
+               data_type sernum();
+
+               const data_type::value_type & reported_len();
+            };
+
             struct transfer_cmd: public reply::type
             {
             };
@@ -237,6 +249,7 @@ namespace rdm
             bool request(data_type & packet, const data_type::value_type & device_addr,
                   const data_type::value_type & AFI,
                   const data_type::value_type & slot_num);
+            bool reset(data_type & packet, const data_type::value_type & device_addr);
             bool transfer_cmd(data_type & packet, const data_type::value_type & device_addr, const data_type & cmd);
          } // namespace iso14443_type_b
          namespace iso15693
