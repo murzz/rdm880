@@ -257,7 +257,7 @@ namespace rdm
             return status_;
          }
 
-         const reply::status type::status_code() const
+         reply::status type::status_code() const
          {
             if (reply::status::command_ok == status_)
             {

@@ -123,7 +123,7 @@ namespace rdm
             const reply::status & status() const;
 
             /// If status is not OK then there might be status code with detailed error
-            const reply::status status_code() const;
+            reply::status status_code() const;
             const data_type & data() const;
          };
 
