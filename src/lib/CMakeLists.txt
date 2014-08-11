@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
 
-set(PROJECT_NAME_LIB ${CMAKE_PROJECT_NAME}-lib)
 project(${PROJECT_NAME_LIB})
 
 include_directories(
@@ -9,7 +8,7 @@ include_directories(
 )
 
 set(LIB_SOURCES
-    lib.cpp
+    impl.cpp
 )
 
 add_library(${PROJECT_NAME}

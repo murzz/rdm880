@@ -2,7 +2,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "protocol.hpp"
+#include "impl.hpp"
 
 BOOST_AUTO_TEST_CASE( stream_test )
 {

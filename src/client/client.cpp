@@ -1,11 +1,14 @@
 #include <cstdlib>
 #include <iostream>
+
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
+#include <boost/log/trivial.hpp>
+
 #include "serialstream.h"
 #include "TimeoutSerial.h"
-#include "protocol.hpp"
+#include "rdm.hpp"
 
 //bool cmd_get_version_num(SerialStream & serial)
 bool cmd_get_version_num(TimeoutSerial & serial)

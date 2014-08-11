@@ -9,13 +9,11 @@ include_directories(
 
 add_executable(${PROJECT_NAME}
     main-test.cpp
-    #misc-test.cpp
-    #protocol-test.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
-    ${Boost_LIBRARIES}
     ${PROJECT_NAME_LIB}
+    ${Boost_LIBRARIES}
 )
 
 enable_testing()
