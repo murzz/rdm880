@@ -13,12 +13,18 @@ BOOST_AUTO_TEST_CASE( stream_test )
    std::stringstream ss;
    ss << in;
    ss >> out;
-   std::cout << in.size() << std::endl << out.size() <<std::endl;
 
-   //std::copy(rhs.begin(), rhs.end(), std::ostream_iterator<rdm::message::data_type::value_type>(os));
-
-   std::cout << std::hex << ss << std::endl;
+   //bool b = (in != out);
+//   std::cout << in.size() << std::endl << out.size() <<std::endl;
+//
+//
+//
+//   //std::copy(rhs.begin(), rhs.end(), std::ostream_iterator<rdm::message::data_type::value_type>(os));
+//
+//   std::cout << std::hex << ss << std::endl;
 //   std::cout << std::hex <<  out << std::endl;
+
+   //BOOST_CHECK_EQUAL(in, out);
 
    BOOST_CHECK_EQUAL_COLLECTIONS(in.begin(), in.end(), out.begin(), out.end());
 }

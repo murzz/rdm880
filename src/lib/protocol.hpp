@@ -908,7 +908,7 @@ std::istream & operator>>(std::istream & os, rdm::message::data_type & rhs)
       ss << item;
    }
 
-   BOOST_LOG_TRIVIAL(debug)<< ">> " << std::hex << ss.rdbuf() << std::endl;
+   //BOOST_LOG_TRIVIAL(debug)<< ">> " << std::hex << ss.rdbuf() << std::endl;
 
    return os;
 }

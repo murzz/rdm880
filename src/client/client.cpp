@@ -114,6 +114,31 @@ bool iso14443_type_b_transfer_cmd(TimeoutSerial & serial)
    return true;
 }
 
+bool select_app(TimeoutSerial & serial)
+{
+   std::string app_id = "1TIC.ICA";
+   rdm::message::data_type apdu =
+         {
+               0x94, // CLA
+               0xA4, // INS
+               0x04, // P1
+               0x00, // P2
+         };
+   apdu.push_back(app_id.size());
+   std::copy(app_id.begin(), app_id.end(), std::back_inserter(apdu));
+
+   auto encoder = boost::bind(rdm::message::command::iso14443_type_b::transfer_cmd, _1, _2, apdu);
+
+   rdm::message::reply::system::get_ser_num reply;
+   if (!send_receive(serial, encoder, reply))
+   {
+      return false;
+   }
+
+   BOOST_LOG_TRIVIAL(info)<< "reply size: '" << reply.data_.size() << "'";
+   return true;
+}
+
 bool iso14443_type_a_transfer_cmd(TimeoutSerial & serial)
 {
    rdm::message::data_type cmd =
@@ -237,12 +262,13 @@ int main(int argc, char **argv)
    serial.setTimeout(boost::posix_time::seconds(5));
 
    auto get_version = boost::bind(cmd_get_version_num, boost::ref(serial));
-   auto get_sernum = boost::bind(cmd_get_ser_num, boost::ref(serial));
+   auto get_ser_num = boost::bind(cmd_get_ser_num, boost::ref(serial));
    auto cmd_mifare_get_ser_num = boost::bind(mifare_get_ser_num, boost::ref(serial));
    auto cmd_iso14443_type_b_transfer_cmd = boost::bind(iso14443_type_b_transfer_cmd, boost::ref(serial));
    auto cmd_iso14443_type_a_transfer_cmd = boost::bind(iso14443_type_a_transfer_cmd, boost::ref(serial));
    auto cmd_iso15693_transfer_cmd = boost::bind(iso15693_transfer_cmd, boost::ref(serial));
    auto cmd_reqb = boost::bind(reqb, boost::ref(serial));
+   auto cmd_select_app = boost::bind(select_app, boost::ref(serial));
 
 //   send_command(get_version);
 //   send_command(get_sernum);
@@ -250,7 +276,8 @@ int main(int argc, char **argv)
 //   send_command(cmd_iso14443_type_b_transfer_cmd);
 //   send_command(cmd_iso14443_type_a_transfer_cmd);
 //   send_command(cmd_iso15693_transfer_cmd);
-   send_command(cmd_reqb);
+//   send_command(cmd_reqb);
+   send_command(cmd_select_app);
 
    return EXIT_SUCCESS;
 }
