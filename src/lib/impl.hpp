@@ -116,10 +116,12 @@ namespace rdm
             Attrib_B = 0x0B,
 
             /// Integrate the REQB and ATTRIB Command
-            Rst_TypeB = 0x0C,
+            //Rst_TypeB = 0x0C,
+            Rst_TypeB = 0x0E,
 
             /// ISO14443-4 transparent command Type B Card
-            ISO14443_TypeB_Transfer_Command = 0x0D,
+            //ISO14443_TypeB_Transfer_Command = 0x0D,
+            ISO14443_TypeB_Transfer_Command = 0x0F,
 
             // ISO15693 Commands (0x10~0x1D)
 
