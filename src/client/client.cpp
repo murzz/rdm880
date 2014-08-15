@@ -211,13 +211,28 @@ bool mifare_get_ser_num(TimeoutSerial & serial)
    return true;
 }
 
-bool reqb(TimeoutSerial & serial)
+bool request_b(TimeoutSerial & serial)
 {
    rdm::message::data_type::value_type AFI = 0x00;
    rdm::message::data_type::value_type slot_num = 0x00;
    auto encoder = boost::bind(rdm::message::command::iso14443_type_b::request, _1, _2, AFI, slot_num);
 
-   rdm::message::reply::mifare::get_ser_num reply;
+   rdm::message::reply::iso14443_type_b::request reply;
+   if (!send_receive(serial, encoder, reply))
+   {
+      return false;
+   }
+
+   BOOST_LOG_TRIVIAL(debug)<< "ATQB read successfully";
+
+   return true;
+}
+
+bool reset_b(TimeoutSerial & serial)
+{
+   auto encoder = boost::bind(rdm::message::command::iso14443_type_b::reset, _1, _2);
+
+   rdm::message::reply::iso14443_type_b::reset reply;
    if (!send_receive(serial, encoder, reply))
    {
       return false;
@@ -287,7 +302,7 @@ int main(int argc, char **argv)
    auto cmd_iso14443_type_b_transfer_cmd = boost::bind(iso14443_type_b_transfer_cmd, boost::ref(serial));
    auto cmd_iso14443_type_a_transfer_cmd = boost::bind(iso14443_type_a_transfer_cmd, boost::ref(serial));
    auto cmd_iso15693_transfer_cmd = boost::bind(iso15693_transfer_cmd, boost::ref(serial));
-   auto cmd_reqb = boost::bind(reqb, boost::ref(serial));
+   auto cmd_request_b = boost::bind(request_b, boost::ref(serial));
    auto cmd_select_app = boost::bind(select_app, boost::ref(serial));
 
 //   send_command(get_version);
@@ -296,7 +311,7 @@ int main(int argc, char **argv)
 //   send_command(cmd_iso14443_type_b_transfer_cmd);
 //   send_command(cmd_iso14443_type_a_transfer_cmd);
 //   send_command(cmd_iso15693_transfer_cmd);
-//   send_command(cmd_reqb);
+   send_command(cmd_request_b);
    send_command(cmd_select_app);
 
    return EXIT_SUCCESS;
