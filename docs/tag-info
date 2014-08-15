@@ -1,0 +1,245 @@
+TAGs selected information.
+
+This representaion is
+- T - Type, usualy called TAG , 1-3 bytes, here is 2,4,6 HEX characters
+- L - Length, 1 byte, here is 2 HEX characters
+- V - Value of TAG, HEX characters
+
+You may find this TLV TAGs inside :
+- data DUMPs from field 55 ISO 8583
+- data DUMPs geted from Smartcards
+
+For detailed TAG data definition please post Sample data to my TLVdecoder.
+
+#-----------+----------------------------------------------------------------------------+-----------------------------+
+| Tag,   Le | Description                                               Specification(s) | Sample data for TLVdecoder  |
++----HEX----+----------------------------------------------------------------------------+-----------------------------+
+| 42     03 | IIN                                                                        |                             |
+| 4F        | AID                                                                        |                             |
+| 50        | Application Label                                                          | 50 11 5649534120435245444954|
+| 52        | Command to Perform                                                         |                             |
+| 57        | Track 2 Equivalent Data                                                    |                             |
+| 5A        | Application PAN                                                            | 5A 08 4341792000000044      |
+| 5F20      | Cardholder Name                                                            |                             |
+| 5F24   03 | Application Expiration Date                                                | 5F24 03 10 12 31            |
+| 5F25   03 | Application Effective Date                                                 | 5F25 03 09 07 01            |
+| 5F28   02 | Issuer Country Code                                                        |                             |
+| 5F2A   02 | Transaction Currency Code                                                  | 5F2A 02 0643                |
+| 5F2D      | Language Preference                                                        | 5F2D 06 6A61 6B6F 7A68      |
+| 5F30   02 | Service Code                                                               | 5F30 02 0201                |
+| 5F34   01 | Application PAN Sequence Number                                            | 5F34 01 04                  |
+| 5F36   01 | Transaction Currency Exponent                                              |                             |
+| 5F50      | Issuer URL                                                                 |                             |
+| 5F53      | IBAN                                                                       |                             |
+| 5F54      | Bank Identifier Code (BIC)                                                 |                             |
+| 5F55   02 | Issuer Country Code (alpha2 format)                                        |                             |
+| 5F56   03 | Issuer Country Code (alpha3 format)                                        |                             |
+| 5F57   01 | Account Type                                                               |                             |
+| 61        | Application Template                                                       |                             |
+| 6F        | FCI Template                                                               |                             |
+| 70        | AEF Data Template                                                          |                             |
+| 71        | Issuer Script Template 1                                                   |                             |
+| 72        | Issuer Script Template 2                                                   |                             |
+| 73        | Directory Discretionary Template                                           |                             |
+| 77        | Response Message Template Format 2                                         |                             |
+| 80        | Response Message Template Format 1                                         |                             |
+| 81     04 | Authorised Amount (Binary)                                                 |                             |
+| 82     02 | AIP                                                                        | 82 02 5C00                  |
+| 83        | Command Template                                                           |                             |
+| 84        | Dedicated File (DF) Name                                                   | 84 07 A0 00 00 00 03 10 10  |
+| 86        | Issuer Script Command                                                      |                             |
+| 87     01 | Application Priority Indicator                                             | 87 01 01                    |
+| 88     01 | Short File Identifier (SFI)                                                |                             |
+| 89     06 | Authorisation Code                                                         |                             |
+| 8A     02 | Authorisation Response Code                                                |                             |
+| 8C        | CDOL1                                                                      |                             |
+| 8D        | CDOL2                                                                      |                             |
+| 8E        | CVM List                                                            | 8E 0E 00000000000000001E0302031F00 |
+| 8F     01 | Certification Authority Public Key Index                                   | 9F 01 95                    |
+| 90        | Issuer Public Key Certificate                                              |                             |
+| 91        | Issuer Authentication Data                                                 |                             |
+| 92        | Issuer Public Key Remainder                                                |                             |
+| 93        | Signed Static Application Data                                             |                             |
+| 94        | AFL                                                                     | 94 0C 080101001001030018010201 |
+| 95     05 | TVR                                                                        | 95 05 0080040000            |
+| 97        | TDOL                                                                       |                             |
+| 98        | Transaction Certificate (TC) Hash Value                                    |                             |
+| 99        | Transaction PIN Data                                                       |                             |
+| 9A     03 | Transaction Date                                                           | 9A 03 090306                |
+| 9B     02 | Transaction Status Information                                             | 9C 01 00                    |
+| 9C     01 | Transaction Type                                                           |                             |
+| 9D        | Directory Definition File (DDF) Name                                       |                             |
+| 9F01   06 | Acquirer Identifier                                                        |                             |
+| 9F02   06 | Authorised Amount (Numeric)                                                | 9F02 06 000000002000        |
+| 9F03   06 | Other Amount (Numeric)                                                     | 9F03 06 000000001234        |
+| 9F04   04 | Other Amount (Binary)                                                      |                             |
+| 9F05      | Application Discretionary Data                                             |                             |
+| 9F06      | AID                                                                        |                             |
+| 9F07   02 | AUC - Application Usage Control                                            | 9F07 02 FF00                |
+| 9F08   02 | Application Version Number                                                 | 9F08 02 008C                |
+| 9F09   02 | Application Version Number                                                 |                             |
+| 9F0B      | Cardholder Name - Extended                                                 |                             |
+| 9F0D   05 | IAC - Default                                                              | 9F0D 05 F0 40 00 88 00      |
+| 9F0E   05 | IAC - Denial                                                               | 9F0E 05 00 10 00 00 00      |
+| 9F0F   05 | IAC - Online                                                               | 9F0F 05 F0 40 00 98 00      |
+| 9F10      | Issuer Application Data                                                    | 9F10 07 06010A03A00000      |
+| 9F11   01 | Issuer Code Table Index                                                    | 9F11 01 01                  |
+| 9F12      | Application Preferred Name                                                 |                             |
+| 9F13   02 | Last Online ATC Register                                                   |                             |
+| 9F14   01 | Lower Consecutive Offline Limit                                            |                             |
+| 9F15   02 | MCC                                                                        |                             |
+| 9F16   0F | Merchant Identifier                                                        |                             |
+| 9F17   01 | PIN Try Counter                                                            | 9F17 01 03                  |
+| 9F18   04 | Issuer Script Identifier                                                   |                             |
+| 9F1A   02 | Terminal Country Code                                                      | 9F1A 02 0512                |
+| 9F1B   04 | Terminal Floor Limit                                                       |                             |
+| 9F1C   08 | Terminal Identification                                                    |                             |
+| 9F1D      | Terminal Risk Management Data                                              |                             |
+| 9F1E   08 | Interface Device (IFD) Serial Number                                       |                             |
+| 9F1F      | Track 1 Discretionary Data                                                 |                             |
+| 9F20      | Track 2 Discretionary Data                                                 |                             |
+| 9F21   03 | Transaction Time                                                           |                             |
+| 9F22   01 | Certification Authority Public Key Index                                   |                             |
+| 9F23   01 | Upper Consecutive Offline Limit                                            |                             |
+| 9F26   08 | Application Cryptogram                                                     | 9F26 08 1234567890123456    |
+| 9F27   01 | Cryptogram Information Data (CID)                                          | 9F27 01 80                  |
+| 9F2D      | ICC PIN Encipherment Public Key Certificate                                |                             |
+| 9F2E      | ICC PIN Encipherment Public Key Exponent                                   |                             |
+| 9F2F      | ICC PIN Encipherment Public Key Remainder                                  |                             |
+| 9F32      | Issuer Public Key Exponent                                                 | 9F32 01 03                  |
+| 9F33   03 | Terminal Capabilities                                                      | 9F33 03 60D0C8              |
+| 9F34   03 | CVM Results                                                                | 9F34 03 020300              |
+| 9F35   01 | Terminal Type                                                              | 9F35 01 21                  |
+| 9F36   02 | ATC                                                                        | 9F36 02 001B                |
+| 9F37   04 | Unpredictable Number                                                       | 9F37 04 0B356351            |
+| 9F38      | PDOL                                                                       |                             |
+| 9F39   01 | POS Entry Mode                                                             |                             |
+| 9F3A   04 | Amount Reference Currency                                                  |                             |
+| 9F3B      | Application Reference Currency                                             |                             |
+| 9F3C   02 | Transaction Reference Currency                                             |                             |
+| 9F3D   01 | Transaction Reference Currency Exponent                                    |                             |
+| 9F40   05 | Additional Terminal Capabilities                                           |                             |
+| 9F41      | Transaction Sequence Counter                                               |                             |
+| 9F42   02 | Application Currency Code                                                  | 9F42 02 0840                |
+| 9F43      | Application Reference Currency Exponent                                    |                             |
+| 9F44   01 | Application Currency Exponent                                              |                             |
+| 9F45   02 | Data Authentication Code                                                   |                             |
+| 9F46      | ICC Public Key Certificate                                                 |                             |
+| 9F47      | ICC Public Key Exponent                                                    | 9F47 01 03                  |
+| 9F48      | ICC Public Key Remainder                                                   |                             |
+| 9F49      | DDOL                                                                       | 9F49 03 9F3704              |
+| 9F4A      | SDA Tag List                                                               |                             |
+| 9F4B      | Signed Dynamic Application Data                                            |                             |
+| 9F4C      | ICC Dynamic Number                                                         |                             |
+| 9F4D   02 | Log Entry                                                                  |                             |
+| 9F4E      | Merchant Name and Location                                                 |                             |
+| 9F4F      | Log Format                                                                 |                             |
+| 9F50   06 | Offline Balance                                                            |                             |
+| 9F51   02 | Application Currency Code                                                  | 9F51 02 0840                |
+| 9F51      | Log Format                                                                 |                             |
+| 9F52      | Application Default Action (ADA)                                           | 9F52 02 6000                |
+| 9F52      | CVR                                                                        |                             |
+| 9F53   01 | Consecutive International Transaction Limit                                |                             |
+| 9F54   06 | CTTAL Cumulative Total Transaction Amount Limit                            | 9F54 06 000000010000        |
+| 9F55   01 | Geographic Indicator                                                       | 9F55 01 C0                  |
+| 9F56   01 | Issuer Authentication Indicator                                            | 9F56 01 80                  |
+| 9F57   02 | Issuer Country Code                                                        | 9F57 02 0643                |
+| 9F58   01 | Lower Consecutive Offline Limit                                            | 9F58 01 7F                  |
+| 9F59   01 | Upper Consecutive Offline Limit                                            | 9F59 01 7F                  |
+| 9F5A      | Issuer URL2                                                                |                             |
+| 9F5B      | Issuer Script Result                                                       |                             |
+| 9F5C   03 | Application Flag                                                           |                             |
+| 9F5C   06 | CTTAUL Cumulative Total Trans. Amount Upper Limit                          | 9F5C 06 999999999999        |
+| 9F5D   06 | Available offline spending amount                                          |                             |
+| 9F5E   01 | Consecutive International Transaction Upper Limit                          |                             |
+| 9F5F   01 | Script Counter                                                             |                             |
+| 9F67      | MSD offset                                                            ADVT |                             |
+| 9F72   01 | Consecutive Trans. Limit                                                   |                             |
+| 9F73   04 | Currency Conversion Factor                                                 |                             |
+| 9F74   06 | VLP Issuer Authorization Code                                              | 9F74 06 565C50313131        |
+| 9F75   06 | Cumulative Total Trans. Amount Limit-Dual Currency                         |                             |
+| 9F76   02 | Secondary Application Currency Code                                        |                             |
+| 9F77   06 | VLP Funds Limit                                                            | 9F77 06 999999999999        |
+| 9F78   06 | VLP Single Transaction Limit                                               | 9F78 06 000000001000        |
+| 9F79   06 | VLP Available Funds                                                        | 9F79 06 999999999999        |
+| 9F7A   01 | VLP Support Indicator                                                      |                             |
+| 9F7B   06 | VLP Terminal Transaction Limit                                             |                             |
+| 9F7E   30 | Application Production Life Cycle                                          |                             |
+| 9F7D      | VSDC Applet Version                                                        |                             |
+| 9F7F   2A | Card Production Life Cycle                                                 |                             |
+| A5        | FCI Proprietary Template                                                   |                             |
+| BF0C      | FCI Issuer Discretionary Data                                              | BFOC 08 C20653414D504C45    |
+| BF30      | Accumulators Data                                                          |                             |
+| BF31   02 | Accumulator Profile Controls                                               |                             |
+| BF32      | Accumulator Controls                                                       |                             |
+| BF33      | Additional Check Tables                                                    |                             |
+| BF34   12 | CIAC s Entries                                                             |                             |
+| BF35      | Counter x Data                                                             |                             |
+| BF36   01 | Counter Profile Controls                                                   |                             |
+| BF37   01 | Counter x Controls                                                         |                             |
+| BF38      | Currency Conversion Tables                                                 |                             |
+| BF39   02 | Cyclic Accumulator Profile Controls                                        |                             |
+| BF3A   03 | Cyclic Accumulator x Controls                                              |                             |
+| BF3B   03 | Issuer Options Profile Controls                                            |                             |
+| BF3C   06 | Limits Entries                                                             |                             |
+| BF3D   04 | MTA Profile Controls                                                       |                             |
+| BF3E   02 | GPO Parameters                                                             |                             |
+| BF3F      | Profile Controls                                                           |                             |
+| BF40      | Log Data Tables                                                            |                             |
+| BF41      | AIP/AFL Entries                                                            |                             |
+| BF42      | Cyclic Accumulator x Data                                                  |                             |
+| C1     04 | Application Control                                                        |                             |
+| C2     02 | Profile Selection File Entry                                               |                             |
+| C2     06 | Maximum Domestic Offline Transaction Amount                                |                             |
+| C3     02 | Number of Days Offline Limit                                               |                             |
+| C3     03 | CIAC - Decline                                                             |                             |
+| C4     01 | Security Limits Status                                                     |                             |
+| C4     03 | CIAC - Offline                                                             |                             |
+| C5     06 | Security Limits                                                            |                             |
+| C5     03 | CIAC - Online                                                              |                             |
+| C6     05 | Card TVR Action Code                                                       |                             |
+| C6        | Counters                                                                   |                             |
+| C6     01 | PIN Try Limit                                                              |                             |
+| C7     01 | CDOL1 Related Data Length                                                  |                             |
+| C7     02 | Previous Transaction History (PTH)                                         |                             |
+| C8     01 | Key Derivation Index                                                       |                             |
+| C8     02 | CRM Country Code                                                           |                             |
+| C8     14 | Application Issuer Life Cycle Data                                         |                             |
+| C9     02 | CRM Currency Code                                                          |                             |
+| C9     02 | Offline Balance Currency Code                                              |                             |
+| CA     06 | Lower Cumulative Offline Transaction Amount                                |                             |
+| CB     06 | Upper Cumulative Offline Transaction Amount                                |                             |
+| CD     06 | Offline Cumulative Transaction Amount                                      |                             |
+| CE     01 | Non-Domestic Control Factor                                                |                             |
+| D1     14 | Reference Currency Conversion Table                                        |                             |
+| D1     19 | Currency Conversion Table                                                  |                             |
+| D3     12 | Additional Check Data                                                      |                             |
+| D5     02 | Application Control                                                        |                             |
+| D6     02 | Default ARPC Response Code                                                 |                             |
+| DF0X      | Accumulator %                                                              |                             |
+| DF1X      | Accumulator %  Limit                                                       |                             |
+| DF0X      | Accumulator Profile Control %                                              |                             |
+| DF0X      | Accumulator %  Control                                                     |                             |
+| DF01      | Additional Check Table 1                                                   |                             |
+| DF02      | Additional Check Table 2                                                   |                             |
+| DF0X      | CIAC s Entry %                                                             |                             |
+| DF0X      | Counter %                                                                  |                             |
+| DF1X      | Counter %  Limit                                                           |                             |
+| DF0X      | Counter Profile Control %                                                  |                             |
+| DF0X      | Counter %  Control                                                         |                             |
+| DF0X      | Currency Conversion Table %                                                |                             |
+| DF0X      | Cyclic Accumulator Profile Control %                                       |                             |
+| DF0X      | Cyclic Accumulator %  Control                                              |                             |
+| DF0X      | Issuer Options Profile Control %                                           |                             |
+| DF0X      | Limits Entry %                                                             |                             |
+| DF0X      | MTA Profile Control %                                                      |                             |
+| DF0X      | GPO Parameters %                                                           |                             |
+| DFXX      | Profile Control %                                                          |                             |
+| DF01      | First GEN AC Log Data Table                                                |                             |
+| DF02      | Second GEN AC Log Data Table                                               |                             |
+| DF03      | First GEN AC Unchanging Log Data Table                                     |                             |
+| DF0X      | AIP/AFL Entry %                                                            |                             |
+| DF0X      | Cyclic Accumulator %                                                       |                             |
+| DF1X      | Cyclic Accumulator %  Reference Date                                       |                             |
+| DF2X      | Cyclic Accumulator %  Reference Day                                        |                             |
++-----------+----------------------------------------------------------------------------+-----------------------------+
