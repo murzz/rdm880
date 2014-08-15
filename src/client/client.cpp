@@ -303,6 +303,7 @@ int main(int argc, char **argv)
    auto cmd_iso14443_type_a_transfer_cmd = boost::bind(iso14443_type_a_transfer_cmd, boost::ref(serial));
    auto cmd_iso15693_transfer_cmd = boost::bind(iso15693_transfer_cmd, boost::ref(serial));
    auto cmd_request_b = boost::bind(request_b, boost::ref(serial));
+   auto cmd_reset_b = boost::bind(reset_b, boost::ref(serial));
    auto cmd_select_app = boost::bind(select_app, boost::ref(serial));
 
 //   send_command(get_version);
@@ -311,7 +312,7 @@ int main(int argc, char **argv)
 //   send_command(cmd_iso14443_type_b_transfer_cmd);
 //   send_command(cmd_iso14443_type_a_transfer_cmd);
 //   send_command(cmd_iso15693_transfer_cmd);
-   send_command(cmd_request_b);
+   send_command(cmd_reset_b);
    send_command(cmd_select_app);
 
    return EXIT_SUCCESS;
