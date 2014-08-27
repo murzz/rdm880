@@ -16,6 +16,10 @@ target_link_libraries(${PROJECT_NAME}
     ${Boost_LIBRARIES}
 )
 
+add_dependencies(${PROJECT_NAME}
+    ${PROJECT_NAME_LIB}
+)
+
 enable_testing()
 add_test( unit-tests ${PROJECT_NAME})
 

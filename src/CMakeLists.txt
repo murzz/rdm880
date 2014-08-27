@@ -13,6 +13,7 @@ add_definitions(-DBOOST_ALL_DYN_LINK)
 #add_definitions(-DBOOST_LOG_DYN_LINK)
 
 set(PROJECT_NAME_LIB ${CMAKE_PROJECT_NAME}-lib)
+
 add_subdirectory(lib)
 add_subdirectory(test)
 add_subdirectory(client)
