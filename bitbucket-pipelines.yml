@@ -1,0 +1,8 @@
+image: ubuntu:xenial
+
+pipelines:
+  default:
+    - step:
+        script:
+          - cmake -Bbuild -Hsrc
+          - cmake --build build
