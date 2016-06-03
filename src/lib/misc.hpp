@@ -12,7 +12,7 @@ container_type mid(const container_type & container, const typename container_ty
    auto begin = container.end();
    auto end = container.end();
 
-   if (std::distance(container.begin(), container.end()) > pos)
+   if (std::distance(container.begin(), container.end()) > static_cast<typename container_type::difference_type>(pos))
    {
       begin = std::next(container.begin(), pos);
    }
