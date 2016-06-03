@@ -5,7 +5,7 @@
 #include <deque>
 
 #include <boost/log/trivial.hpp>
-#include <boost/iostreams/stream.hpp>
+//#include <boost/iostreams/stream.hpp>
 
 #include "misc.hpp"
 #include "rdm.hpp"

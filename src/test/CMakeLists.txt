@@ -11,9 +11,12 @@ add_executable(${PROJECT_NAME}
     main-test.cpp
 )
 
+FIND_PACKAGE(Threads)
+
 target_link_libraries(${PROJECT_NAME}
     ${PROJECT_NAME_LIB}
     ${Boost_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT}
 )
 
 add_dependencies(${PROJECT_NAME}
