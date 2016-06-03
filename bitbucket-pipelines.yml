@@ -4,6 +4,6 @@ pipelines:
   default:
     - step:
         script:
-          - sudo apt-get install gcc g++ cmake
+          - apt-get install gcc g++ cmake
           - cmake -Bbuild -Hsrc
           - cmake --build build
