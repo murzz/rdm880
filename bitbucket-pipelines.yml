@@ -4,7 +4,7 @@ pipelines:
   default:
     - step:
         script:
-          - apt-get update -qq
-          - apt-get -y install gcc g++ cmake
+          - apt-get -qq update
+          - apt-get -qq -y install gcc g++ cmake libboost-all-dev
           - cmake -Bbuild -Hsrc
           - cmake --build build
