@@ -11,11 +11,11 @@ Tools and libraries:
 * CMake
 * Boost
 
-Following command could be used to install dependencies on Ubuntu : `apt-get install git gcc g++ cmake libboost-all-dev`.
+Following command could be used to install dependencies on Ubuntu: `apt-get install git gcc g++ cmake libboost-all-dev`.
 
 # Clone
 
-Following command could be used to clone repository: `git clone git@bitbucket.org:murzzz/rdm880.git`
+Following command could be used to clone repository: `git clone git@bitbucket.org:murzzz/rdm880.git`.
 
 # Build
 
