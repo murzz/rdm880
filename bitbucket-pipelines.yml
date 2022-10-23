@@ -1,11 +1,17 @@
-image: ubuntu:xenial
-
 pipelines:
-  default:
-    - step:
-        script:
-          - apt-get -qq update
-          - apt-get -qq -y install gcc g++ cmake libboost-all-dev
-          - cmake -Bbuild -Hsrc
-          - cmake --build build --target all
-          - cmake --build build --target check
+   default:
+      - parallel:
+         - step:
+            name: Build and test
+            image: ubuntu:xenial
+            script:
+               - apt-get -qq update
+               - apt-get -qq -y install gcc g++ cmake libboost-all-dev
+               - cmake -Bbuild -Hsrc
+               - cmake --build build --target all
+               - cmake --build build --target check
+         - step:
+            name: Lint
+            image: markdownlint/markdownlint
+            script:
+               - mdl .
