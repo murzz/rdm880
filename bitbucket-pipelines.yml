@@ -3,7 +3,7 @@ pipelines:
       - parallel:
          - step:
             name: Build and test
-            image: ubuntu:xenial
+            image: atlassian/default-image:3
             script:
                - apt-get -qq update
                - apt-get -qq -y install gcc g++ cmake libboost-all-dev
