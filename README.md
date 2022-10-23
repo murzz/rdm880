@@ -1,8 +1,10 @@
-# About
+# RDM880
 
-This is communication protocol implementation library for [RDM880 RFID module](http://www.seeedstudio.com/wiki/13.56Mhz_RFID_module_-_IOS/IEC_14443_type_a) written in C++.
+This is communication protocol implementation library for
+[RDM880 RFID module](http://www.seeedstudio.com/wiki/13.56Mhz_RFID_module_-_IOS/IEC_14443_type_a)
+written in C++.
 
-# Dependencies
+## Dependencies
 
 Tools and libraries:
 
@@ -11,23 +13,29 @@ Tools and libraries:
 * CMake
 * Boost
 
-Following command could be used to install dependencies on Ubuntu: `apt-get install git gcc g++ cmake libboost-all-dev`.
+Following command could be used to install dependencies on Ubuntu:
+`apt-get install git gcc g++ cmake libboost-all-dev`.
 
-# Clone
+## Clone
 
-Following command could be used to clone repository: `git clone git@bitbucket.org:murzzz/rdm880.git`.
+Following command could be used to clone repository:
+`git clone git@bitbucket.org:murzzz/rdm880.git`.
 
-# Build
+## Build
 
 Following command could be used to build repository:
 
-    cmake -Bbuild -Hrdm880/src
-    cmake --build build --target all
+```sh
+cmake -Bbuild -Hrdm880/src
+cmake --build build --target all
+```
 
-# Run tests
+## Run tests
 
-Following command could be used to execute available tests: `cmake --build build --target check`.
+Following command could be used to execute available tests:
+`cmake --build build --target check`.
 
-# Build status
+## Build status
 
-[Bitbucket Pipelines](https://bitbucket.org/murzzz/rdm880/addon/pipelines/home) is used for CI.
+[Bitbucket Pipelines](https://bitbucket.org/murzzz/rdm880/addon/pipelines/home)
+is used for CI.
