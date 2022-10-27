@@ -18,6 +18,7 @@
  */
 
 #include "TimeoutSerial.h"
+
 #include <string>
 #include <algorithm>
 #include <iostream>

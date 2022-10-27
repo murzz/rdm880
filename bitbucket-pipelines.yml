@@ -5,13 +5,22 @@ pipelines:
             name: Build and test
             image: atlassian/default-image:3
             script:
-               - apt-get -qq update
-               - apt-get -qq -y install gcc g++ cmake libboost-all-dev
-               - cmake -Bbuild -Hsrc
-               - cmake --build build --target all
-               - cmake --build build --target check
+               - apt-get -qq -y update
+               - apt-get -qq -y --no-install-recommends install g++ libboost-log-dev libboost-test-dev ninja-build python3-pip
+               - pip3 --no-cache-dir install cmake
+               - apt-get clean
+               - rm -rf /var/lib/apt/lists/* /var/tmp/* /tmp/*
+               - cmake --preset dev-linux
+               - cmake --build --preset dev-linux --target install
+               - ctest --preset dev-linux
          - step:
-            name: Lint
+            name: Lint Markdown
             image: markdownlint/markdownlint
             script:
                - mdl .
+         - step:
+            name: Lint Dockerfile
+            script:
+               - docker run --rm -i hadolint/hadolint < Dockerfile
+            services:
+               - docker

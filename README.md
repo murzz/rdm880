@@ -39,3 +39,8 @@ Following command could be used to execute available tests:
 
 [Bitbucket Pipelines](https://bitbucket.org/murzzz/rdm880/addon/pipelines/home)
 is used for CI.
+
+## Attribution
+
+* [CMake project template](https://github.com/pananton/cpp-lib-template)
+* [Boost test discovery](https://github.com/Bagira80/cmake-modules)

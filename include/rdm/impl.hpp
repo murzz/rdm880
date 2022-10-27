@@ -3,8 +3,9 @@
 #include <sstream>
 #include <deque>
 
-#include "misc.hpp"
-#include "rdm.hpp"
+#include "rdm/export.hpp"
+#include "rdm/misc.hpp"
+#include "rdm/rdm.hpp"
 
 namespace rdm
 {

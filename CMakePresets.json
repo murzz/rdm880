@@ -1,0 +1,49 @@
+{
+    "version": 5,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 23,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "dev",
+            "description": "Base preset for library developers",
+            "binaryDir": "${sourceDir}/_build",
+            "generator": "Ninja",
+            "hidden": true,
+            "cacheVariables": {
+                "RDM_BUILD_TESTS": "ON",
+                "RDM_BUILD_EXAMPLES": "ON",
+                "CMAKE_VERBOSE_MAKEFILE": "ON"
+            }
+        },
+        {
+            "name": "dev-linux",
+            "description": "Linux preset for library developers",
+            "hidden": false,
+            "inherits": [
+                "dev"
+            ]
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "dev-linux",
+            "configurePreset": "dev-linux"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "dev-linux",
+            "configurePreset": "dev-linux",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": true
+            }
+        }
+    ]
+}

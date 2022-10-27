@@ -6,9 +6,10 @@
 
 #include <boost/log/trivial.hpp>
 
+#include <rdm/rdm.hpp>
+
 #include "serialstream.h"
 #include "TimeoutSerial.h"
-#include "rdm.hpp"
 
 template<typename serial_device_type, typename cmd_encoder, typename reply_type>
 bool send_receive(serial_device_type & serial, cmd_encoder encoder, reply_type & reply)

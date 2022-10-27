@@ -3,7 +3,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <vector>
-#include "misc.hpp"
+#include <rdm/misc.hpp>
 
 BOOST_AUTO_TEST_CASE( mid_tests_generic )
 {

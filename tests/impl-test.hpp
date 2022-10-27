@@ -4,7 +4,7 @@
 //#include <iostream>
 #include <boost/test/unit_test.hpp>
 
-#include "impl.hpp"
+#include <rdm/impl.hpp>
 
 BOOST_AUTO_TEST_CASE( stream_test )
 {

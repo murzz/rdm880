@@ -7,9 +7,9 @@
 #include <boost/log/trivial.hpp>
 //#include <boost/iostreams/stream.hpp>
 
-#include "misc.hpp"
-#include "rdm.hpp"
-#include "impl.hpp"
+#include "rdm/misc.hpp"
+#include "rdm/rdm.hpp"
+#include "rdm/impl.hpp"
 
 namespace rdm
 {
