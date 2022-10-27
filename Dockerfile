@@ -2,6 +2,7 @@
 
 FROM alpine:3.16
 
+# hadolint ignore=DL3019
 RUN --mount=type=cache,target=/var/cache \
 	--mount=type=cache,target=/root/.cache \
 	set -ex \
