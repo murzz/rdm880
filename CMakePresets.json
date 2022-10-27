@@ -1,5 +1,5 @@
 {
-    "version": 5,
+    "version": 4,
     "cmakeMinimumRequired": {
         "major": 3,
         "minor": 23,
@@ -10,6 +10,7 @@
             "name": "dev",
             "description": "Base preset for library developers",
             "binaryDir": "${sourceDir}/_build",
+            "installDir": "${sourceDir}/_build",
             "generator": "Ninja",
             "hidden": true,
             "cacheVariables": {

@@ -3,13 +3,9 @@ pipelines:
       - parallel:
          - step:
             name: Build and test
-            image: atlassian/default-image:3
+            image: alpine:3.16
             script:
-               - apt-get -qq -y update
-               - apt-get -qq -y --no-install-recommends install g++ libboost-log-dev libboost-test-dev ninja-build python3-pip
-               - pip3 --no-cache-dir install cmake
-               - apt-get clean
-               - rm -rf /var/lib/apt/lists/* /var/tmp/* /tmp/*
+               - apk add g++ boost-dev cmake samurai
                - cmake --preset dev-linux
                - cmake --build --preset dev-linux --target install
                - ctest --preset dev-linux
