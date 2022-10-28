@@ -6,7 +6,7 @@ pipelines:
             image: alpine:3.16
             script:
                - apk add g++ boost-dev cmake samurai
-               - cmake --preset dev-linux
+               - cmake -G Ninja --preset dev-linux
                - cmake --build --preset dev-linux --target install
                - ctest --preset dev-linux
          - step:
