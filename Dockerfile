@@ -1,14 +1,20 @@
 # syntax = docker/dockerfile:1.2
 
-FROM alpine:3.16
-
+FROM alpine:3.16 as builder
 # hadolint ignore=DL3019
 RUN --mount=type=cache,target=/var/cache \
-	--mount=type=cache,target=/root/.cache \
 	set -ex \
 	&& apk add \
-		g++~=11.2 \
 		boost-dev~=1.78 \
 		cmake~=3.23 \
-		samurai~=1.2\
-	&& rm -rf /var/tmp/* /tmp/*
+		g++~=11.2 \
+		samurai~=1.2
+
+
+FROM builder as devel
+# hadolint ignore=DL3019
+RUN --mount=type=cache,target=/var/cache \
+	set -ex \
+	&& apk add \
+        gdb~=11.2 \
+		valgrind~=3.19 \
