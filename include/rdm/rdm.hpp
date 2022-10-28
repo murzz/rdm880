@@ -240,7 +240,7 @@ namespace rdm
                   data_type::value_type execute_halt = rdm::message::mifare_no_halt);
 
 /// This command is using for transparent any command to The Card which these
-/// commands meet the ISO14443-Typea protocol
+/// commands meet the ISO14443-TypeA protocol
             bool transfer_cmd(data_type & packet, const data_type::value_type & device_addr,
                   const data_type::value_type & crc_flag, const data_type & cmd);
          } // namespace mifare
@@ -262,8 +262,8 @@ namespace rdm
       namespace reply
       {
          bool decode(const data_type & packet, reply::type & reply);
-      } // namespace repy
-   } // mamespace message
+      } // namespace reply
+   } // namespace message
 } // namespace RDM
 
 std::ostream & operator<<(std::ostream & os, const rdm::message::data_type & rhs);

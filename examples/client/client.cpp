@@ -69,7 +69,7 @@ bool cmd_get_version_num(TimeoutSerial & serial)
    }
 
    std::string version;
-   // get rid of 0 or non print characters
+   // get rid of 0 or non-print characters
    for (const auto & item : reply.sernum())
    {
       version += std::iswprint(item) ? item : '.';
@@ -91,7 +91,7 @@ bool cmd_get_ser_num(TimeoutSerial & serial)
 
    // dealing with reply
    std::string sernum;
-   // get rid of 0 or non print characters
+   // get rid of 0 or non-print characters
    for (const auto & item : reply.sernum())
    {
       sernum += std::iswprint(item) ? item : '.';

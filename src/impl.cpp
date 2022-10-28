@@ -216,7 +216,7 @@ namespace rdm
                status_str = "The Card do not support this command";
                break;
             case reply::status::iso15693_format_error:
-               status_str = "The Foarmat Of  The Command Erro";
+               status_str = "The Format Of The Command Error";
                break;
             case reply::status::iso15693_unsupported_option:
                status_str = "Do not support Option mode";
@@ -566,8 +566,8 @@ namespace rdm
          {
             return message::decode(packet, reply);
          }
-      } // namespace repy
-   } // mamespace message
+      } // namespace reply
+   } // namespace message
 } // namespace RDM
 
 //std::ostream & operator<<(std::ostream & os, const rdm::message::reply::status & status)
