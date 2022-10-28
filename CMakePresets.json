@@ -1,5 +1,5 @@
 {
-    "version": 4,
+    "version": 3,
     "cmakeMinimumRequired": {
         "major": 3,
         "minor": 23,
@@ -10,13 +10,11 @@
             "name": "dev",
             "description": "Base preset for library developers",
             "binaryDir": "${sourceDir}/_build",
-            "installDir": "${sourceDir}/_build",
-            "generator": "Ninja",
+            "installDir": "${sourceDir}/_install",
             "hidden": true,
             "cacheVariables": {
                 "RDM_BUILD_TESTS": "ON",
-                "RDM_BUILD_EXAMPLES": "ON",
-                "CMAKE_VERBOSE_MAKEFILE": "ON"
+                "RDM_BUILD_EXAMPLES": "ON"
             }
         },
         {
