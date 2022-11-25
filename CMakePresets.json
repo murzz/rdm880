@@ -22,6 +22,28 @@
       "inherits": [
         "dev"
       ]
+    },
+    {
+      "name": "dev-linux-gcc",
+      "description": "Linux preset for library developers with GCC",
+      "hidden": false,
+      "inherits": [
+        "dev-linux"
+      ],
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "g++"
+      }
+    },
+    {
+      "name": "dev-linux-clang",
+      "description": "Linux preset for library developers wih Clang",
+      "hidden": false,
+      "inherits": [
+        "dev-linux"
+      ],
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
     }
   ],
   "buildPresets": [
