@@ -1,48 +1,46 @@
 {
-    "version": 3,
-    "cmakeMinimumRequired": {
-        "major": 3,
-        "minor": 23,
-        "patch": 0
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "dev",
+      "description": "Base preset for library developers",
+      "hidden": true,
+      "cacheVariables": {
+        "RDM_BUILD_TESTS": "ON",
+        "RDM_BUILD_EXAMPLES": "ON"
+      }
     },
-    "configurePresets": [
-        {
-            "name": "dev",
-            "description": "Base preset for library developers",
-            "binaryDir": "${sourceDir}/_build",
-            "installDir": "${sourceDir}/_install",
-            "hidden": true,
-            "cacheVariables": {
-                "RDM_BUILD_TESTS": "ON",
-                "RDM_BUILD_EXAMPLES": "ON"
-            }
-        },
-        {
-            "name": "dev-linux",
-            "description": "Linux preset for library developers",
-            "hidden": false,
-            "inherits": [
-                "dev"
-            ]
-        }
-    ],
-    "buildPresets": [
-        {
-            "name": "dev-linux",
-            "configurePreset": "dev-linux"
-        }
-    ],
-    "testPresets": [
-        {
-            "name": "dev-linux",
-            "configurePreset": "dev-linux",
-            "output": {
-                "outputOnFailure": true
-            },
-            "execution": {
-                "noTestsAction": "error",
-                "stopOnFailure": true
-            }
-        }
-    ]
+    {
+      "name": "dev-linux",
+      "description": "Linux preset for library developers",
+      "hidden": false,
+      "inherits": [
+        "dev"
+      ]
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "dev-linux",
+      "configurePreset": "dev-linux"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "dev-linux",
+      "configurePreset": "dev-linux",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    }
+  ]
 }
