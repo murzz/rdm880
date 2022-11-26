@@ -1,22 +1,30 @@
 pipelines:
-   default:
-      - parallel:
-         - step:
-            name: Build and test
+  default:
+    - parallel:
+        - step:
+            name: Build and test on GCC
             image: alpine:3.16
             script:
-               - apk add g++ boost-dev cmake samurai
-               - cmake -G Ninja --preset dev-linux
-               - cmake --build --preset dev-linux --target install
-               - ctest --preset dev-linux
-         - step:
+              - apk add boost-dev cmake g++ samurai
+              - cmake -G Ninja -S . -B _build/gcc --preset dev-linux-gcc
+              - cmake --build _build/gcc
+              - ctest --test-dir _build/gcc
+        - step:
+            name: Build and test on Clang
+            image: alpine:3.16
+            script:
+              - apk add boost-dev clang cmake g++ samurai
+              - cmake -G Ninja -S . -B _build/clang --preset dev-linux-clang
+              - cmake --build _build/clang
+              - ctest --test-dir _build/clang
+        - step:
             name: Lint Markdown
             image: markdownlint/markdownlint
             script:
-               - mdl .
-         - step:
+              - mdl .
+        - step:
             name: Lint Dockerfile
             script:
-               - docker run --rm -i hadolint/hadolint < Dockerfile
+              - docker run --rm -i hadolint/hadolint < Dockerfile
             services:
-               - docker
+              - docker
