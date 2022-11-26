@@ -1,4 +1,7 @@
 /.cproject
 /.project
 /.settings/
+/.idea/
 /_*/
+/cmake-build*/
+/CMakeUserPresets.json

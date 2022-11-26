@@ -248,6 +248,6 @@ namespace rdm
          bool decode(const data_type & packet, reply::type & reply);
 
       } // namespace command
-   } // mamespace message
+   } // namespace message
 } // namespace RDM
 

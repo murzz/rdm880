@@ -31,7 +31,7 @@ endif()
 #----------------------------------------------------------------------------------------------------------------------
 
 set(sources
-    main-test.cpp)
+        main-test.cpp)
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 
 #----------------------------------------------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ add_executable(rdm-tests)
 target_sources(rdm-tests PRIVATE ${sources})
 
 target_link_libraries(rdm-tests
-    PRIVATE
+        PRIVATE
         rdm::rdm
         Boost::unit_test_framework)
 
