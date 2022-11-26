@@ -1,0 +1,35 @@
+name: ci
+on: [ push, pull_request ]
+jobs:
+  build-and-test:
+    name: Build and test
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [ Release, Debug ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+    runs-on: ${{matrix.os}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Conan
+        run: pip3 install -r requirements.txt
+      - name: Install dependencies
+        run: conan install --install-folder ${{github.workspace}}/_conan -pr:b=default --build=missing -s build_type=${{matrix.build_type}} ${{github.workspace}}
+      - name: Configure
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_PROJECT_INCLUDE=${{github.workspace}}/_conan/conan_paths.cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}}
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+        run: ctest --output-on-failure --test-dir ${{github.workspace}}/build --build-config ${{matrix.build_type}}
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v2.1.0
+      - name: Lint Markdown files
+        uses: actionshub/markdownlint@2.0.2
