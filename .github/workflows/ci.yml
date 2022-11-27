@@ -33,3 +33,21 @@ jobs:
         uses: hadolint/hadolint-action@v2.1.0
       - name: Lint Markdown files
         uses: actionshub/markdownlint@2.0.2
+  static_analysis:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup init_script
+        shell: bash
+        run: |
+          echo "#!/bin/bash
+          pip3 install -r requirements.txt
+          conan install --install-folder _conan -pr:b=default --build=missing .
+          " > init_script.sh
+      - name: Run static analysis
+        uses: JacobDomagala/StaticAnalysis@v0.0.5
+        with:
+          cmake_args: -DCMAKE_PROJECT_INCLUDE=_conan/conan_paths.cmake
+          init_script: init_script.sh
