@@ -1,5 +1,7 @@
 name: ci
 on: [ push, pull_request ]
+env:
+  CONAN_USER_HOME: ${{github.workspace}}/_conan-user-home
 jobs:
   build-and-test:
     name: Build and test
@@ -12,6 +14,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Cache Conan packages
+        id: cache-conan
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-conan-packages
+        with:
+          path: ${{env.CONAN_USER_HOME}}
+          key: ${{runner.os}}-build-${{env.cache-name}}-${{hashFiles('conanfile.txt')}}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
       - name: Install Conan
         run: pip3 install -r requirements.txt
       - name: Install dependencies
