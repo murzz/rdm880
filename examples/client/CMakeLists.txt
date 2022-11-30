@@ -8,7 +8,7 @@ if(is_top_level)
     find_package(rdm REQUIRED)
 endif()
 
-set(sources client.cpp serialstream.h TimeoutSerial.cpp TimeoutSerial.h)
+set(sources client.cpp TimeoutSerial.cpp TimeoutSerial.h)
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 
 find_package(Boost COMPONENTS

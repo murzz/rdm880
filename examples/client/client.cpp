@@ -8,7 +8,6 @@
 
 #include <rdm/rdm.hpp>
 
-#include "serialstream.h"
 #include "TimeoutSerial.h"
 
 using namespace boost::placeholders;
@@ -258,10 +257,6 @@ void send_command(command cmd)
             // stop retrying on success
             break;
          }
-      } catch (TimeoutException &)
-      {
-         //   serial.clear(); //Don't forget to clear error flags after a timeout
-         BOOST_LOG_TRIVIAL(warning)<< "Timeout occurred, retrying...";
       }
       catch (timeout_exception & e)
       {
