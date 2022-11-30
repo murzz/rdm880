@@ -1,49 +1,84 @@
-name: Continuous Integration 
+name: Continuous Integration
+
 on: [ push, pull_request ]
+
 jobs:
   build-and-test:
     name: Build and test
+
     strategy:
       fail-fast: false
       matrix:
         build_type: [ Release, Debug ]
         os: [ ubuntu-latest, windows-latest, macos-latest ]
-    runs-on: ${{matrix.os}}
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      CONAN_USER_HOME: ${{ github.workspace }}/_conan-user-home
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup Python and pip cache
+
+      - name: Install Python and Pip
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
           cache: 'pip'
+
       - name: Install Conan
         run: pip3 install -r requirements.txt
+
+      - name: Cache Conan packages
+        id: cache-conan
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-conan-packages
+        with:
+          path: ${{ env.CONAN_USER_HOME }}
+          key: ${{ runner.os }}-${{ matrix.build_type }}-${{ env.cache-name }}-${{ hashFiles('conanfile.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
       - name: Install dependencies
-        run: conan install --install-folder ${{github.workspace}}/_conan -pr:b=default --build=missing -s build_type=${{matrix.build_type}} ${{github.workspace}}
+        run: conan install --install-folder _conan -pr:b=default --build=missing -s build_type=${{ matrix.build_type }} .
+
       - name: Configure
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_PROJECT_INCLUDE=${{github.workspace}}/_conan/conan_paths.cmake -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON
+        run: cmake -B_build -DCMAKE_PROJECT_INCLUDE=${{ github.workspace }}/_conan/conan_paths.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON
+
       - name: Build
-        run: cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}}
+        run: cmake --build _build --config ${{ matrix.build_type }}
+
       - name: Test
-        working-directory: ${{github.workspace}}/build
-        run: ctest --output-on-failure --test-dir ${{github.workspace}}/build --build-config ${{matrix.build_type}}
+        run: ctest --output-on-failure --test-dir _build --build-config ${{ matrix.build_type }}
+
   lint:
     name: Lint
+
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Lint Dockerfile
         uses: hadolint/hadolint-action@v3.0.0
+
       - name: Lint Markdown files
         uses: actionshub/markdownlint@2.0.2
+
   static_analysis:
     name: Static analysis
+
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Setup init_script
         shell: bash
         run: |
@@ -51,6 +86,7 @@ jobs:
           pip3 install -r requirements.txt
           conan install --install-folder _conan -pr:b=default --build=missing .
           " > init_script.sh
+
       - name: Run static analysis
         uses: JacobDomagala/StaticAnalysis@v0.0.5
         with:
