@@ -16,3 +16,4 @@ See [examples](examples).
 
 - [CMake project template](https://github.com/pananton/cpp-lib-template).
 - [Boost test discovery](https://github.com/Bagira80/cmake-modules).
+- [boost.asio serial port](https://github.com/fedetft/serial-port)
