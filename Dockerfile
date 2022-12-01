@@ -9,6 +9,7 @@ RUN --mount=type=cache,target=/var/cache \
     clang~=13.0 \
     cmake~=3.23 \
     g++~=11.2 \
+    git~=2.36 \
     samurai~=1.2
 
 
