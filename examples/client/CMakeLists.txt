@@ -4,9 +4,13 @@ project(rdm-client LANGUAGES CXX)
 include("../../cmake/utils.cmake")
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" is_top_level)
 
-include("../../cmake/simple-boost-serial-port.cmake")
-add_library(simple-boost-serial-port::lib ALIAS simple-boost-serial-port)
-target_compile_definitions(simple-boost-serial-port PRIVATE BOOST_BIND_GLOBAL_PLACEHOLDERS)
+# https://github.com/ericfont/serial-port
+include(FetchContent)
+FetchContent_Declare(simple-boost-serial-port-fetch
+        GIT_REPOSITORY https://github.com/murzz/serial-port.git
+        GIT_TAG murzz-patch-1
+        )
+FetchContent_MakeAvailable(simple-boost-serial-port-fetch)
 
 if (is_top_level)
     find_package(rdm REQUIRED)

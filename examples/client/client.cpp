@@ -8,7 +8,7 @@
 
 #include <rdm/rdm.hpp>
 
-#include "TimeoutSerial.h"
+#include <TimeoutSerial.h>
 
 using namespace boost::placeholders;
 
