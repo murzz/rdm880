@@ -47,7 +47,7 @@ jobs:
         run: conan install --install-folder _conan -pr:b=default --build=missing -s build_type=${{ matrix.build_type }} .
 
       - name: Configure
-        run: cmake -B_build -DCMAKE_PROJECT_INCLUDE=${{ github.workspace }}/_conan/conan_paths.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON
+        run: cmake -B_build -DCMAKE_PROJECT_INCLUDE=${{ github.workspace }}/_conan/conan_paths.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON -DCMAKE_VERBOSE_MAKEFILE=ON
 
       - name: Build
         run: cmake --build _build --config ${{ matrix.build_type }}
