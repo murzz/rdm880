@@ -4,7 +4,7 @@ project(rdm-client LANGUAGES CXX)
 include("../../cmake/utils.cmake")
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" is_top_level)
 
-# https://github.com/ericfont/serial-port
+# https://github.com/murzz/serial-port
 include(FetchContent)
 FetchContent_Declare(simple-boost-serial-port-fetch
         GIT_REPOSITORY https://github.com/murzz/serial-port.git
