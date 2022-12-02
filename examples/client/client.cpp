@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cwctype>
 #include <iostream>
 
 #include <boost/function.hpp>
