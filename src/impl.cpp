@@ -1,11 +1,8 @@
 #include <limits>
-#include <cstdint>
 #include <sstream>
-//#include <vector>
 #include <deque>
 
 #include <boost/log/trivial.hpp>
-//#include <boost/iostreams/stream.hpp>
 
 #include "rdm/misc.hpp"
 #include "rdm/rdm.hpp"
@@ -155,9 +152,7 @@ namespace rdm
          {
          }
 
-         type::~type()
-         {
-         }
+         type::~type() = default;
 
       } // namespace command
 
@@ -233,7 +228,7 @@ namespace rdm
             case reply::status::iso15693_failed:
                status_str = "The Operation Do Not Success";
                break;
-            };
+            }
 
             return status_str;
          }
@@ -243,9 +238,7 @@ namespace rdm
          {
          }
 
-         type::~type()
-         {
-         }
+         type::~type() = default;
 
          const data_type::value_type & type::device_addr() const
          {
@@ -266,9 +259,7 @@ namespace rdm
 
             reply::status status_code = reply::status::command_ok;
 
-            const auto dist_signed = std::distance(data_.begin(), data_.end());
-            const data_type::size_type dist_unsigned = dist_signed < 0 ? 0 : dist_signed;
-            if (dist_unsigned >= framing::offset::status_code + framing::size::status_code)
+            if (data_.size() >= (framing::offset::status_code + framing::size::status_code))
             {
                status_code = static_cast<message::reply::status>(data_.at(framing::offset::status_code));
             }
@@ -396,7 +387,7 @@ namespace rdm
          reply.status_ = static_cast<message::reply::status>(packet.at(framing::offset::status));
 
          // variable size data, if any
-         data_type::value_type data_len = packet.at(framing::offset::data_len);
+         auto data_len = packet.at(framing::offset::data_len);
          if (data_len > framing::size::data_len)
          {
             // excluding 'status' byte, which is first byte of data block

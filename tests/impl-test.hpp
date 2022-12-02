@@ -8,7 +8,7 @@
 
 BOOST_AUTO_TEST_CASE( stream_test )
 {
-   rdm::message::data_type in =
+   rdm::message::data_type const in =
          { 1, 2, 3, 4 };
    rdm::message::data_type out;
 
@@ -37,7 +37,7 @@ struct common
    template<typename reply_type>
    void decode_and_check(reply_type & reply_decoded, const rdm::message::data_type & reply_expected) const
          {
-      rdm::message::reply::type & generic_reply = dynamic_cast<rdm::message::reply::type &>(reply_decoded);
+      auto & generic_reply = dynamic_cast<rdm::message::reply::type &>(reply_decoded);
       rdm::message::reply::decode(reply_expected, generic_reply);
 
       BOOST_CHECK_EQUAL(to_integral(reply_decoded.status()), reply_status);
