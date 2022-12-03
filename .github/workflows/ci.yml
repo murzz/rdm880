@@ -75,35 +75,12 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    CONAN_USER_HOME: ${{ github.workspace }}/_conan-user-home
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cache Conan packages
-        id: cache-conan
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-conan-packages
-        with:
-          path: ${{ env.CONAN_USER_HOME }}
-          key: ${{ runner.os }}-${{ matrix.build_type }}-${{ env.cache-name }}-${{ hashFiles('conanfile.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-
-      - name: Setup init_script
-        shell: bash
-        run: |
-          echo "#!/bin/bash
-          pip3 install -r requirements.txt
-          conan install --install-folder _conan -pr:b=default --build=missing .
-          " > init_script.sh
-
       - name: Run static analysis
         uses: JacobDomagala/StaticAnalysis@v0.0.5
         with:
-          cmake_args: -DCMAKE_PROJECT_INCLUDE=_conan/conan_paths.cmake
-          init_script: init_script.sh
+          apt_pckgs: cmake g++ git libboost-all-dev ninja-build
+          cmake_args: -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON -DCMAKE_VERBOSE_MAKEFILE=ON
