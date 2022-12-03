@@ -87,6 +87,8 @@ set_target_properties(rdm PROPERTIES
         SOVERSION ${PROJECT_VERSION_MAJOR}
         VERSION ${PROJECT_VERSION})
 
+target_compile_features(rdm PUBLIC cxx_std_11)
+
 if(RDM_INSTALL AND NOT CMAKE_SKIP_INSTALL_RULES)
     configure_package_config_file(cmake/rdm-config.cmake.in rdm-config.cmake
             INSTALL_DESTINATION "${RDM_INSTALL_CMAKEDIR}")

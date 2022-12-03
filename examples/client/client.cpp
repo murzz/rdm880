@@ -1,15 +1,17 @@
 #include <cstdlib>
+#include <cwctype>
 #include <iostream>
 
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 #include <boost/log/trivial.hpp>
 
 #include <rdm/rdm.hpp>
 
-#include "serialstream.h"
-#include "TimeoutSerial.h"
+#include <TimeoutSerial.h>
+
+using namespace boost::placeholders;
 
 template<typename serial_device_type, typename cmd_encoder, typename reply_type>
 bool send_receive(serial_device_type & serial, cmd_encoder encoder, reply_type & reply)
@@ -256,10 +258,6 @@ void send_command(command cmd)
             // stop retrying on success
             break;
          }
-      } catch (TimeoutException &)
-      {
-         //   serial.clear(); //Don't forget to clear error flags after a timeout
-         BOOST_LOG_TRIVIAL(warning)<< "Timeout occurred, retrying...";
       }
       catch (timeout_exception & e)
       {

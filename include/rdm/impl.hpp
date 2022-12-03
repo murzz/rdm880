@@ -75,7 +75,7 @@ namespace rdm
 
          /// Calculates Block Check Character.
          data_type::value_type calculate_bcc(const data_type & packet, data_type::size_type start_idx = 0,
-               data_type::size_type size = std::numeric_limits<data_type::size_type>::max());
+               data_type::size_type size = (std::numeric_limits<data_type::size_type>::max)());
 
          /// checks if frame is sane:
          ///   - minimum size is met
@@ -237,7 +237,7 @@ namespace rdm
             command::id id_;
             data_type data_;
 
-            type(data_type::value_type device_addr = message::default_device_addr);
+            explicit type(data_type::value_type device_addr = message::default_device_addr);
             virtual ~type();
          };
 

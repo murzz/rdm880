@@ -47,7 +47,7 @@ jobs:
         run: conan install --install-folder _conan -pr:b=default --build=missing -s build_type=${{ matrix.build_type }} .
 
       - name: Configure
-        run: cmake -B_build -DCMAKE_PROJECT_INCLUDE=${{ github.workspace }}/_conan/conan_paths.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON
+        run: cmake -B_build -DCMAKE_PROJECT_INCLUDE=${{ github.workspace }}/_conan/conan_paths.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON -DCMAKE_VERBOSE_MAKEFILE=ON
 
       - name: Build
         run: cmake --build _build --config ${{ matrix.build_type }}
@@ -79,16 +79,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup init_script
-        shell: bash
-        run: |
-          echo "#!/bin/bash
-          pip3 install -r requirements.txt
-          conan install --install-folder _conan -pr:b=default --build=missing .
-          " > init_script.sh
-
       - name: Run static analysis
         uses: JacobDomagala/StaticAnalysis@v0.0.5
         with:
-          cmake_args: -DCMAKE_PROJECT_INCLUDE=_conan/conan_paths.cmake
-          init_script: init_script.sh
+          apt_pckgs: cmake g++ git libboost-all-dev ninja-build
+          cmake_args: -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON -DCMAKE_VERBOSE_MAKEFILE=ON
+          cppcheck_args: --enable=all --inline-suppr --suppress=missingIncludeSystem --library=boost --std=c++11 --inconclusive

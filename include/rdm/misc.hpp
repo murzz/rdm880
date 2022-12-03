@@ -5,6 +5,7 @@
 
 static const int default_len_value = -1;
 
+/// @return Copy of a container @container starting from @c pos with size @len.
 template<typename container_type>
 container_type mid(const container_type & container, const typename container_type::size_type pos,
       typename container_type::difference_type len = typename container_type::difference_type(default_len_value))
@@ -12,7 +13,7 @@ container_type mid(const container_type & container, const typename container_ty
    auto begin = container.end();
    auto end = container.end();
 
-   if (std::distance(container.begin(), container.end()) > static_cast<typename container_type::difference_type>(pos))
+   if (container.size() > static_cast<typename container_type::difference_type>(pos))
    {
       begin = std::next(container.begin(), pos);
    }
