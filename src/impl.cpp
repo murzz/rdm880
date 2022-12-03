@@ -71,6 +71,7 @@ namespace rdm
             return true;
          }
 
+         // cppcheck-suppress unusedFunction
          bool encode(data_type & packet)
          {
             packet.push_back(calculate_bcc(packet));
@@ -125,6 +126,7 @@ namespace rdm
             return true;
          }
 
+         // cppcheck-suppress unusedFunction
          bool decode(data_type & frame)
          {
             if (!verify(frame))
