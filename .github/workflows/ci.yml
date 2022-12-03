@@ -84,3 +84,4 @@ jobs:
         with:
           apt_pckgs: cmake g++ git libboost-all-dev ninja-build
           cmake_args: -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON -DCMAKE_VERBOSE_MAKEFILE=ON
+          cppcheck_args: --enable=all --inline-suppr --suppress=missingIncludeSystem --library=boost --std=c++11 --inconclusive

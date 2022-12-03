@@ -16,9 +16,18 @@
       }
     },
     {
+      "name": "dev-cppcheck",
+      "description": "CppCheck",
+      "inherits": [
+        "dev"
+      ],
+      "cacheVariables": {
+        "CMAKE_CXX_CPPCHECK": "cppcheck;--enable=all;--inline-suppr;--suppress=missingIncludeSystem;--library=boost;--std=c++11;--inconclusive"
+      }
+    },
+    {
       "name": "dev-linux",
       "description": "Linux preset for library developers",
-      "hidden": false,
       "inherits": [
         "dev"
       ]
@@ -26,7 +35,6 @@
     {
       "name": "dev-linux-gcc",
       "description": "Linux preset for library developers with GCC",
-      "hidden": false,
       "inherits": [
         "dev-linux"
       ],
@@ -37,7 +45,6 @@
     {
       "name": "dev-linux-clang",
       "description": "Linux preset for library developers wih Clang",
-      "hidden": false,
       "inherits": [
         "dev-linux"
       ],

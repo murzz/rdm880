@@ -8,6 +8,7 @@ RUN --mount=type=cache,target=/var/cache \
     boost-dev~=1.78 \
     clang~=13.0 \
     cmake~=3.23 \
+    cppcheck~=2.8 \
     g++~=11.2 \
     git~=2.36 \
     samurai~=1.2
@@ -31,6 +32,7 @@ RUN --mount=type=cache,target=/var/cache \
     ca-certificates=20211016 \
     clang=1:14\* \
     cmake=3.22\* \
+    cppcheck=2.7\* \
     g++=4:11.2\* \
     git=1:2.34\* \
     libboost-all-dev=1.74\* \
