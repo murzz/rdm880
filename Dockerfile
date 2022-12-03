@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1.2
 
-FROM alpine:3.16 as builder-alpine
+FROM alpine:3.17 as builder-alpine
 # hadolint ignore=DL3019
 RUN --mount=type=cache,target=/var/cache \
   set -ex \
