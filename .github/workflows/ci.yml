@@ -22,12 +22,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Set Conan Build type
+        shell: bash
+        run: echo "CONAN_BUILD_TYPE=$(test "${{ matrix.build_type }}" == "Asan" && echo Debug || echo ${{ matrix.build_type }})" >> $GITHUB_ENV
+
       - name: Restore Conan cache
         id: cache-conan
         uses: actions/cache@v3
         with:
           path: ${{ env.CONAN_USER_HOME }}
-          key: ${{ runner.os }}-${{ matrix.build_type }}-conan-${{ hashFiles('conanfile.txt') }}
+          key: ${{ runner.os }}-${{ env.CONAN_BUILD_TYPE }}-conan-${{ hashFiles('conanfile.txt') }}
 
       - name: Install Python and Pip
         if: steps.cache-conan.outputs.cache-hit != 'true'
@@ -40,10 +44,6 @@ jobs:
         if: steps.cache-conan.outputs.cache-hit != 'true'
         run: pip3 install -r requirements.txt
 
-      - name: Set Conan Build type
-        if: steps.cache-conan.outputs.cache-hit != 'true'
-        shell: bash
-        run: echo "CONAN_BUILD_TYPE=$(test "${{ matrix.build_type }}" == "Asan" && echo Debug || echo ${{ matrix.build_type }})" >> $GITHUB_ENV
 
       - name: Install dependencies
         if: steps.cache-conan.outputs.cache-hit != 'true'
