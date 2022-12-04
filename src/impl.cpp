@@ -596,16 +596,11 @@ std::ostream & operator<<(std::ostream & os, const rdm::message::data_type & rhs
 
 std::istream & operator>>(std::istream & os, rdm::message::data_type & rhs)
 {
-   std::stringstream ss;
-
    rdm::message::data_type::value_type item;
    while (os >> item)
    {
       rhs.push_back(item);
-      ss << item;
    }
-
-   BOOST_LOG_TRIVIAL(debug)<< ">> " << std::hex << ss.rdbuf() << std::endl;
 
    return os;
 }
