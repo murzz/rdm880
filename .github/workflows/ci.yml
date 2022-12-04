@@ -46,10 +46,10 @@ jobs:
 
       - name: Install dependencies
         if: steps.cache-conan.outputs.cache-hit != 'true'
-        run: conan install --install-folder _conan -pr:b=default --build=missing -s build_type=${{ env.CONAN_BUILD_TYPE }} .
+        run: conan install --install-folder ${{ env.CONAN_USER_HOME }}/_install -pr:b=default --build=missing -s build_type=${{ env.CONAN_BUILD_TYPE }} .
 
       - name: Configure
-        run: cmake -B_build -DCMAKE_PROJECT_INCLUDE=${{ github.workspace }}/_conan/conan_paths.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON -DCMAKE_VERBOSE_MAKEFILE=ON
+        run: cmake -B_build -DCMAKE_PROJECT_INCLUDE=${{ env.CONAN_USER_HOME }}/_install/conan_paths.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON -DCMAKE_VERBOSE_MAKEFILE=ON
 
       - name: Build
         run: cmake --build _build --config ${{ matrix.build_type }}
