@@ -44,7 +44,7 @@ jobs:
             ${{ runner.os }}-
 
       - name: Install dependencies
-        run: conan install --install-folder _conan -pr:b=default --build=missing -s build_type=${{ matrix.build_type }} .
+        run: conan install --install-folder _conan -pr:b=default --build=missing .
 
       - name: Configure
         run: cmake -B_build -DCMAKE_PROJECT_INCLUDE=${{ github.workspace }}/_conan/conan_paths.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON -DCMAKE_VERBOSE_MAKEFILE=ON
