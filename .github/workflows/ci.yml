@@ -21,25 +21,32 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install Python and Pip
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-          cache: 'pip'
-
-      - name: Install Conan
-        run: pip3 install -r requirements.txt
-
-      - name: Cache Conan packages
+      - name: Restore Conan cache
         id: cache-conan
         uses: actions/cache@v3
         with:
           path: ${{ env.CONAN_USER_HOME }}
           key: ${{ runner.os }}-${{ matrix.build_type }}-conan-${{ hashFiles('conanfile.txt') }}
 
+      - name: Install Python and Pip
+        if: steps.cache-conan.outputs.cache-hit != 'true'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+
+      - name: Install Conan
+        if: steps.cache-conan.outputs.cache-hit != 'true'
+        run: pip3 install -r requirements.txt
+
+      - name: Set Conan Build type
+        if: steps.cache-conan.outputs.cache-hit != 'true'
+        shell: bash
+        run: test "${{ matrix.build_type }}" == "Asan" && echo CONAN_BUILD_TYPE=Debug || echo CONAN_BUILD_TYPE=${{ matrix.build_type }} >> $GITHUB_ENV
+
       - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: conan install --install-folder _conan -pr:b=default --build=missing -s build_type=${{ matrix.build_type }} .
+        if: steps.cache-conan.outputs.cache-hit != 'true'
+        run: conan install --install-folder _conan -pr:b=default --build=missing -s build_type=${{ env.CONAN_BUILD_TYPE }} .
 
       - name: Configure
         run: cmake -B_build -DCMAKE_PROJECT_INCLUDE=${{ github.workspace }}/_conan/conan_paths.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON -DCMAKE_VERBOSE_MAKEFILE=ON
