@@ -42,7 +42,7 @@ jobs:
       - name: Set Conan Build type
         if: steps.cache-conan.outputs.cache-hit != 'true'
         shell: bash
-        run: test "${{ matrix.build_type }}" == "Asan" && echo CONAN_BUILD_TYPE=Debug || echo CONAN_BUILD_TYPE=${{ matrix.build_type }} >> $GITHUB_ENV
+        run: echo "CONAN_BUILD_TYPE=$(test "${{ matrix.build_type }}" == "Asan" && echo Debug || echo ${{ matrix.build_type }})" >> $GITHUB_ENV
 
       - name: Install dependencies
         if: steps.cache-conan.outputs.cache-hit != 'true'
