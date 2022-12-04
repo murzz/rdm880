@@ -152,6 +152,7 @@ endif()
 #----------------------------------------------------------------------------------------------------------------------
 
 if(RDM_BUILD_TESTS)
+    include(cmake/asan.cmake)
     enable_testing()
     add_subdirectory(tests)
 endif()
