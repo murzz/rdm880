@@ -11,6 +11,9 @@ jobs:
       matrix:
         build_type: [ Release, Debug, Asan ]
         os: [ ubuntu-latest, windows-latest, macos-latest ]
+        exclude:
+          - build_type: Asan
+            os: windows-latest
 
     runs-on: ${{ matrix.os }}
 
