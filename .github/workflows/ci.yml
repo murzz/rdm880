@@ -1,6 +1,6 @@
 name: Continuous Integration
 
-on: [ push, pull_request ]
+on: [ push ]
 
 jobs:
   build-and-test:
@@ -9,45 +9,52 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build_type: [ Release, Debug ]
+        build_type: [ Release, Debug, Asan ]
         os: [ ubuntu-latest, windows-latest, macos-latest ]
+        #  https://learn.microsoft.com/en-us/cpp/sanitizers/error-container-overflow?view=msvc-170
+        exclude:
+          - build_type: Asan
+            os: windows-latest
 
     runs-on: ${{ matrix.os }}
 
     env:
       CONAN_USER_HOME: ${{ github.workspace }}/_conan-user-home
+      CONAN_USER_HOME_SHORT: None
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Set Conan Build type
+        shell: bash
+        run: echo "CONAN_BUILD_TYPE=$(test "${{ matrix.build_type }}" == "Asan" && echo Debug || echo ${{ matrix.build_type }})" >> $GITHUB_ENV
+
+      - name: Restore Conan cache
+        id: cache-conan
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.CONAN_USER_HOME }}
+          key: ${{ runner.os }}-${{ env.CONAN_BUILD_TYPE }}-conan-${{ hashFiles('conanfile.txt') }}
+
       - name: Install Python and Pip
+        if: steps.cache-conan.outputs.cache-hit != 'true'
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
           cache: 'pip'
 
       - name: Install Conan
+        if: steps.cache-conan.outputs.cache-hit != 'true'
         run: pip3 install -r requirements.txt
 
-      - name: Cache Conan packages
-        id: cache-conan
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-conan-packages
-        with:
-          path: ${{ env.CONAN_USER_HOME }}
-          key: ${{ runner.os }}-${{ matrix.build_type }}-${{ env.cache-name }}-${{ hashFiles('conanfile.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
 
       - name: Install dependencies
-        run: conan install --install-folder _conan -pr:b=default --build=missing -s build_type=${{ matrix.build_type }} .
+        if: steps.cache-conan.outputs.cache-hit != 'true'
+        run: conan install --install-folder ${{ env.CONAN_USER_HOME }}/_install -pr:b=default --build=missing -s build_type=${{ env.CONAN_BUILD_TYPE }} .
 
       - name: Configure
-        run: cmake -B_build -DCMAKE_PROJECT_INCLUDE=${{ github.workspace }}/_conan/conan_paths.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON -DCMAKE_VERBOSE_MAKEFILE=ON
+        run: cmake -B_build -DCMAKE_PROJECT_INCLUDE=${{ env.CONAN_USER_HOME }}/_install/conan_paths.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON -DCMAKE_VERBOSE_MAKEFILE=ON
 
       - name: Build
         run: cmake --build _build --config ${{ matrix.build_type }}

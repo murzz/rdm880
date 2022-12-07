@@ -26,6 +26,16 @@
       }
     },
     {
+      "name": "dev-asan",
+      "description": "Address sanitizer",
+      "inherits": [
+        "dev"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Asan"
+      }
+    },
+    {
       "name": "dev-linux",
       "description": "Linux preset for library developers",
       "inherits": [

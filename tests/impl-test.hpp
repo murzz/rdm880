@@ -1,7 +1,6 @@
 #pragma once
 
 #include <sstream>
-//#include <iostream>
 #include <boost/test/unit_test.hpp>
 
 #include <rdm/impl.hpp>
@@ -10,19 +9,13 @@ BOOST_AUTO_TEST_CASE( stream_test )
 {
    rdm::message::data_type const in =
          { 1, 2, 3, 4 };
-//   rdm::message::data_type out;
+   rdm::message::data_type out;
 
    std::stringstream ss;
    ss << in;
-//   ss >> out; <-- crash on ubuntu-latest is here
-//   std::cout << in.size() << std::endl << out.size() <<std::endl;
+   ss >> out;
 
-   //std::copy(rhs.begin(), rhs.end(), std::ostream_iterator<rdm::message::data_type::value_type>(os));
-
-//   std::cout << std::hex << ss << std::endl;
-//   std::cout << std::hex <<  out << std::endl;
-
-//   BOOST_CHECK_EQUAL_COLLECTIONS(in.begin(), in.end(), out.begin(), out.end());
+   BOOST_CHECK_EQUAL_COLLECTIONS(in.begin(), in.end(), out.begin(), out.end());
 }
 
 struct common
