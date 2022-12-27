@@ -38,7 +38,6 @@ jobs:
           key: ${{ runner.os }}-${{ env.CONAN_BUILD_TYPE }}-conan-${{ hashFiles('conanfile.txt') }}
 
       - name: Install Python and Pip
-        if: steps.cache-conan.outputs.cache-hit != 'true'
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
