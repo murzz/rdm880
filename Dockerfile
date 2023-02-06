@@ -23,7 +23,7 @@ RUN --mount=type=cache,target=/var/cache \
     valgrind~=3.19
 
 
-FROM ubuntu:22.04 as builder-ubuntu
+FROM ubuntu:23.04 as builder-ubuntu
 # hadolint ignore=DL3009
 RUN --mount=type=cache,target=/var/cache \
   set -ex \
