@@ -1,5 +1,7 @@
 # RDM880
 
+[![Continuous Integration](https://github.com/murzz/rdm880/actions/workflows/ci.yml/badge.svg)](https://github.com/murzz/rdm880/actions/workflows/ci.yml)
+
 This is communication protocol implementation library for
 [RDM880 RFID module](http://www.seeedstudio.com/wiki/13.56Mhz_RFID_module_-_IOS/IEC_14443_type_a)
 written in C++.
