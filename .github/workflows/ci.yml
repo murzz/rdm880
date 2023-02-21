@@ -1,6 +1,9 @@
 name: Continuous Integration
-
-on: [ push ]
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - 'README.md'
 
 jobs:
   build-and-test:
