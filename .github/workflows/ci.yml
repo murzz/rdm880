@@ -38,7 +38,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.CONAN_USER_HOME }}
-          key: ${{ runner.os }}-${{ env.CONAN_BUILD_TYPE }}-conan-${{ hashFiles('conanfile.txt') }}
+          key: ${{ runner.os }}-${{ matrix.build_type }}-conan-${{ hashFiles('conanfile.txt') }}
 
       - name: Install Python and Pip
         uses: actions/setup-python@v4
