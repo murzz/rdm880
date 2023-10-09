@@ -90,7 +90,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Run static analysis
-        uses: JacobDomagala/StaticAnalysis@v0.0.5
+        uses: JacobDomagala/StaticAnalysis@v0.0.6
         with:
           apt_pckgs: cmake g++ git libboost-all-dev ninja-build
           cmake_args: -DRDM_BUILD_TESTS=ON -DRDM_BUILD_EXAMPLES=ON -DCMAKE_VERBOSE_MAKEFILE=ON
