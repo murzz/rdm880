@@ -2,7 +2,7 @@ bottle==0.12.23
 certifi==2022.12.7
 charset-normalizer==3.0.1
 colorama==0.4.6
-conan==1.56.0
+conan==2.1.0
 distro==1.8.0
 fasteners==0.18
 idna==3.4
